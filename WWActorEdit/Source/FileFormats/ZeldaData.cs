@@ -83,8 +83,6 @@ namespace WWActorEdit
                             break;
                     }
 
-                    Console.WriteLine("Processing chunk: " + chunkHeader.Tag);
-
                     chunk.LoadData(data, ref chunkHeader.ChunkOffset);
                     _chunkList.Add(chunk);
                 }
@@ -200,7 +198,7 @@ namespace WWActorEdit
         /// </summary>
         public void adjustRTBL(List<IChunkType> chunks){
 
-            ((RTBLChunk)chunks[chunks.Count - 1]).lastRTBLChunk = true;
+            ((RTBLChunk)chunks[chunks.Count - 1]).LastRtblChunk = true;
 
         }
 
@@ -1131,136 +1129,137 @@ namespace WWActorEdit
     /// </summary>
     public class TwoDMAChunk : IChunkType
     {
-        public float fullMapImageScaleX;
-        public float fullMapImageScaleY;
-        public float fullMapSpaceScaleX;
-        public float fullMapSpaceScaleY;
-        public float fullMapXCoord;
-        public float fullMapYCoord;
-        public float zoomedMapXScrolling1; //Something with scrolling, but that's also defined below?
-        public float zoomedMapYScrolling1; //Does something like scrolling on y-axis
-        public float zoomedMapXScrolling2;
-        public float zoomedMapYScrolling2;
-        public float zoomedMapXCoord;
-        public float zoomedMapYCoord;
-        public float zoomedMapScale; //That's what it appeared to affect, anyway
-        public byte unknown1; //Always 0x80?
-        public byte mapIndex; //number of the map image to use. For instance, using the first image would be 80, the second 81, and so on.
-        public byte unknown2; //variable, but changing it has no immediate result
-        public byte padding;
+        public float FullMapImageScaleX;
+        public float FullMapImageScaleY;
+        public float FullMapSpaceScaleX;
+        public float FullMapSpaceScaleY;
+        public float FullMapXCoord;
+        public float FullMapYCoord;
+        public float ZoomedMapXScrolling1; //Something with scrolling, but that's also defined below?
+        public float ZoomedMapYScrolling1; //Does something like scrolling on y-axis
+        public float ZoomedMapXScrolling2;
+        public float ZoomedMapYScrolling2;
+        public float ZoomedMapXCoord;
+        public float ZoomedMapYCoord;
+        public float ZoomedMapScale; //That's what it appeared to affect, anyway
+        public byte Unknown1; //Always 0x80?
+        public byte MapIndex; //number of the map image to use. For instance, using the first image would be 80, the second 81, and so on.
+        public byte Unknown2; //variable, but changing it has no immediate result
+        public byte Padding;
 
         public void LoadData(byte[] data, ref int srcOffset)
         {
-            fullMapImageScaleX  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
-            fullMapImageScaleY  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x4));
-            fullMapSpaceScaleX  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x8));
-            fullMapSpaceScaleY  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0xC));
-            fullMapXCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x10));
-            fullMapYCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x14));
-            zoomedMapXScrolling1  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x18));
-            zoomedMapYScrolling1  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x1C));
-            zoomedMapXScrolling2  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x20));
-            zoomedMapYScrolling2  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x24));
-            zoomedMapXCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x28));
-            zoomedMapYCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x2C));
-            zoomedMapScale  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x30));
-            unknown1 = Helpers.Read8(data, srcOffset + 0x34);
-            mapIndex = Helpers.Read8(data, srcOffset + 0x35);
-            unknown2 = Helpers.Read8(data, srcOffset + 0x36);
-            padding = Helpers.Read8(data, srcOffset + 0x37);
+            FullMapImageScaleX  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
+            FullMapImageScaleY  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x4));
+            FullMapSpaceScaleX  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x8));
+            FullMapSpaceScaleY  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0xC));
+            FullMapXCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x10));
+            FullMapYCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x14));
+            ZoomedMapXScrolling1  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x18));
+            ZoomedMapYScrolling1  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x1C));
+            ZoomedMapXScrolling2  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x20));
+            ZoomedMapYScrolling2  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x24));
+            ZoomedMapXCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x28));
+            ZoomedMapYCoord  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x2C));
+            ZoomedMapScale  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x30));
+            Unknown1 = Helpers.Read8(data, srcOffset + 0x34);
+            MapIndex = Helpers.Read8(data, srcOffset + 0x35);
+            Unknown2 = Helpers.Read8(data, srcOffset + 0x36);
+            Padding = Helpers.Read8(data, srcOffset + 0x37);
 
             srcOffset += 0x38;
         }
 
         public void WriteData(BinaryWriter stream)
         {
-            FSHelpers.WriteFloat(stream, fullMapImageScaleX);
-            FSHelpers.WriteFloat(stream, fullMapImageScaleY);
-            FSHelpers.WriteFloat(stream, fullMapSpaceScaleX);
-            FSHelpers.WriteFloat(stream, fullMapSpaceScaleY);
-            FSHelpers.WriteFloat(stream, fullMapXCoord);
-            FSHelpers.WriteFloat(stream, fullMapYCoord);
-            FSHelpers.WriteFloat(stream, zoomedMapXScrolling1);
-            FSHelpers.WriteFloat(stream, zoomedMapYScrolling1);
-            FSHelpers.WriteFloat(stream, zoomedMapXScrolling2);
-            FSHelpers.WriteFloat(stream, zoomedMapYScrolling2);
-            FSHelpers.WriteFloat(stream, zoomedMapXCoord);
-            FSHelpers.WriteFloat(stream, zoomedMapYCoord);
-            FSHelpers.WriteFloat(stream, zoomedMapScale);
-            FSHelpers.Write8(stream, unknown1);
-            FSHelpers.Write8(stream, mapIndex);
-            FSHelpers.Write8(stream, unknown2);
-            FSHelpers.Write8(stream, padding);
+            FSHelpers.WriteFloat(stream, FullMapImageScaleX);
+            FSHelpers.WriteFloat(stream, FullMapImageScaleY);
+            FSHelpers.WriteFloat(stream, FullMapSpaceScaleX);
+            FSHelpers.WriteFloat(stream, FullMapSpaceScaleY);
+            FSHelpers.WriteFloat(stream, FullMapXCoord);
+            FSHelpers.WriteFloat(stream, FullMapYCoord);
+            FSHelpers.WriteFloat(stream, ZoomedMapXScrolling1);
+            FSHelpers.WriteFloat(stream, ZoomedMapYScrolling1);
+            FSHelpers.WriteFloat(stream, ZoomedMapXScrolling2);
+            FSHelpers.WriteFloat(stream, ZoomedMapYScrolling2);
+            FSHelpers.WriteFloat(stream, ZoomedMapXCoord);
+            FSHelpers.WriteFloat(stream, ZoomedMapYCoord);
+            FSHelpers.WriteFloat(stream, ZoomedMapScale);
+            FSHelpers.Write8(stream, Unknown1);
+            FSHelpers.Write8(stream, MapIndex);
+            FSHelpers.Write8(stream, Unknown2);
+            FSHelpers.Write8(stream, Padding);
         }
     }
 
     public class DMAPChunk : IChunkType
     {
-        public float mapSpaceX;
-        public float mapSpaceY;
-        public float mapSpaceScale;
-        public float unknown1;
+        public float MapSpaceX;
+        public float MapSpaceY;
+        public float MapSpaceScale;
+        public float Unknown1;
 
         public void LoadData(byte[] data, ref int srcOffset)
         {
-            mapSpaceX = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
-            mapSpaceY = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x4));
-            mapSpaceScale = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x8));
-            unknown1 = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0xC));
+            MapSpaceX = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
+            MapSpaceY = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x4));
+            MapSpaceScale = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x8));
+            Unknown1 = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0xC));
 
             srcOffset += 0x10;
         }
 
         public void WriteData(BinaryWriter stream)
         {
-            FSHelpers.WriteFloat(stream, mapSpaceX);
-            FSHelpers.WriteFloat(stream, mapSpaceY);
-            FSHelpers.WriteFloat(stream, mapSpaceScale);
-            FSHelpers.WriteFloat(stream, unknown1);
+            FSHelpers.WriteFloat(stream, MapSpaceX);
+            FSHelpers.WriteFloat(stream, MapSpaceY);
+            FSHelpers.WriteFloat(stream, MapSpaceScale);
+            FSHelpers.WriteFloat(stream, Unknown1);
         }
     }
 
     public class RTBLChunk : IChunkType
     {
-        public byte unknown1;
-        public ushort unknown2;
-        public byte[] data;
-        public int index1;
-        public int index2;
-        public bool lastRTBLChunk;
+        public byte Unknown1;
+        public ushort Unknown2;
+        public byte[] Data;
+        public int Index1;
+        public int Index2;
+        public bool LastRtblChunk;
 
 
         public RTBLChunk(){
-            lastRTBLChunk = false;
+            LastRtblChunk = false;
         }
 
 
         public void LoadData(byte[] data, ref int srcOffset)
         {
-            index1 = (int) Helpers.Read32(data, srcOffset);
-            byte dataSize = Helpers.Read8(data, index1);
-            unknown1 = Helpers.Read8(data, index1 + 0x1);
-            unknown2 = Helpers.Read16(data, index1 + 0x2); // 0x2 and 0x3 bytes seems to be always 0
-            index2 = (int) Helpers.Read32(data, index1 + 0x4);
-            data = Helpers.ReadN(data, index2, dataSize);
+            Index1 = (int) Helpers.Read32(data, srcOffset);
+            byte dataSize = Helpers.Read8(data, Index1);
+            Unknown1 = Helpers.Read8(data, Index1 + 0x1);
+            Unknown2 = Helpers.Read16(data, Index1 + 0x2); // 0x2 and 0x3 bytes seems to be always 0
+            Index2 = (int) Helpers.Read32(data, Index1 + 0x4);
+            Data = Helpers.ReadN(data, Index2, dataSize);
 
             srcOffset += 0x4;
         }
 
         public void WriteData(BinaryWriter stream)
         {
-            FSHelpers.WriteFloat(stream, index1);
+            throw new Exception("Hey we haven't tested this, you should test it now!");
+            FSHelpers.WriteFloat(stream, Index1);
             int nextChunkOffset = (int) stream.BaseStream.Position;
-            stream.Seek(index1, SeekOrigin.Begin);
+            stream.Seek(Index1, SeekOrigin.Begin);
 
-            FSHelpers.Write8(stream, (byte) data.Length);
-            FSHelpers.Write8(stream, unknown1);
-            FSHelpers.Write16(stream, unknown2);
-            FSHelpers.WriteFloat(stream, index2);
-            stream.Seek(index2, SeekOrigin.Begin);
+            FSHelpers.Write8(stream, (byte) Data.Length);
+            FSHelpers.Write8(stream, Unknown1);
+            FSHelpers.Write16(stream, Unknown2);
+            FSHelpers.WriteFloat(stream, Index2);
+            stream.Seek(Index2, SeekOrigin.Begin);
 
-            FSHelpers.WriteArray(stream, data);
-            if (!lastRTBLChunk) {
+            FSHelpers.WriteArray(stream, Data);
+            if (!LastRtblChunk) {
                 // Do we need padding here?
                 stream.Seek(nextChunkOffset, SeekOrigin.Begin);
             }

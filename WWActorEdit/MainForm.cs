@@ -622,7 +622,7 @@ namespace WWActorEdit
             //This is a crappy version of the thing but I can't find the WinForm someone made that replicates
             //the OpenFileDialog but for folders instead... Sorry!
             FolderSelectDialog ofd = new FolderSelectDialog();
-            ofd.Title = "Navigate to a folder that ends in .wrkDir and press Open";
+            ofd.Title = "Navigate to a folder that ends in .wrkDir";
 
             string workingDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.ProductName);
             ofd.InitialDirectory = workingDir;

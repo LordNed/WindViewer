@@ -298,7 +298,7 @@
             // 
             this.spawnEditorToolStripMenuItem.Name = "spawnEditorToolStripMenuItem";
             this.spawnEditorToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
-            this.spawnEditorToolStripMenuItem.Text = "Spawn Editor";
+            this.spawnEditorToolStripMenuItem.Text = "Spawn Point Editor";
             this.spawnEditorToolStripMenuItem.Click += new System.EventHandler(this.spawnEditorToolStripMenuItem_Click);
             // 
             // sharedToolStripMenuItem
