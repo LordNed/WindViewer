@@ -627,10 +627,6 @@ namespace WWActorEdit
             string workingDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.ProductName);
             ofd.InitialDirectory = workingDir;
 
-            //fbd.ShowNewFolderButton = false;
-            //fbd.SelectedPath = workingDir;
-            //fbd.Description = "Choose a Working Dir that ends in .wrkDir to load! This Working Dir should contain one or more 'Room<x>' or a 'Stage' folder.";
-
             if (ofd.ShowDialog(this.Handle)) ;
             {
                 //Ensure that the selected directory ends in ".wrkDir". If it doesn't, I don't want to figure out what happens.
