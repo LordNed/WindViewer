@@ -28,43 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("room.dzs");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("DZS", new System.Windows.Forms.TreeNode[] {
-            treeNode1});
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("room.dzb");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("DZB", new System.Windows.Forms.TreeNode[] {
-            treeNode3});
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Room0", new System.Windows.Forms.TreeNode[] {
-            treeNode2,
-            treeNode4});
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("event_list.dat");
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("DAT", new System.Windows.Forms.TreeNode[] {
-            treeNode6});
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Room1", new System.Windows.Forms.TreeNode[] {
-            treeNode7});
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("stage.dzs");
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("DZS", new System.Windows.Forms.TreeNode[] {
-            treeNode9});
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Stage", new System.Windows.Forms.TreeNode[] {
-            treeNode10});
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("MiniHyo", new System.Windows.Forms.TreeNode[] {
-            treeNode5,
-            treeNode8,
-            treeNode11});
-            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Kui");
-            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Kui");
-            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("flower");
-            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Actors", new System.Windows.Forms.TreeNode[] {
-            treeNode13,
-            treeNode14,
-            treeNode15});
-            System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("[0]");
-            System.Windows.Forms.TreeNode treeNode18 = new System.Windows.Forms.TreeNode("[1]");
-            System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("Spawnpoints", new System.Windows.Forms.TreeNode[] {
-            treeNode17,
-            treeNode18});
-            System.Windows.Forms.TreeNode treeNode20 = new System.Windows.Forms.TreeNode("Misc. (FILI)");
-            System.Windows.Forms.TreeNode treeNode21 = new System.Windows.Forms.TreeNode("Exits");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.glControl = new OpenTK.GLControl();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -430,32 +393,6 @@
             this.fileBrowserTV.Location = new System.Drawing.Point(3, 3);
             this.fileBrowserTV.Margin = new System.Windows.Forms.Padding(6);
             this.fileBrowserTV.Name = "fileBrowserTV";
-            treeNode1.Name = "Node18";
-            treeNode1.Text = "room.dzs";
-            treeNode2.Name = "Node8";
-            treeNode2.Text = "DZS";
-            treeNode3.Name = "Node17";
-            treeNode3.Text = "room.dzb";
-            treeNode4.Name = "Node16";
-            treeNode4.Text = "DZB";
-            treeNode5.Name = "Node7";
-            treeNode5.Text = "Room0";
-            treeNode6.Name = "Node19";
-            treeNode6.Text = "event_list.dat";
-            treeNode7.Name = "Node10";
-            treeNode7.Text = "DAT";
-            treeNode8.Name = "Node9";
-            treeNode8.Text = "Room1";
-            treeNode9.Name = "Node21";
-            treeNode9.Text = "stage.dzs";
-            treeNode10.Name = "Node20";
-            treeNode10.Text = "DZS";
-            treeNode11.Name = "Node11";
-            treeNode11.Text = "Stage";
-            treeNode12.Name = "Room1";
-            treeNode12.Text = "MiniHyo";
-            this.fileBrowserTV.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode12});
             this.fileBrowserTV.Size = new System.Drawing.Size(219, 268);
             this.fileBrowserTV.TabIndex = 7;
             this.fileBrowserTV.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.fileBrowserTV_AfterSelect);
@@ -466,29 +403,6 @@
             this.curDataTV.Dock = System.Windows.Forms.DockStyle.Fill;
             this.curDataTV.Location = new System.Drawing.Point(3, 3);
             this.curDataTV.Name = "curDataTV";
-            treeNode13.Name = "Node4";
-            treeNode13.Text = "Kui";
-            treeNode14.Name = "Node5";
-            treeNode14.Text = "Kui";
-            treeNode15.Name = "Node6";
-            treeNode15.Text = "flower";
-            treeNode16.Name = "Node0";
-            treeNode16.Text = "Actors";
-            treeNode17.Name = "Node7";
-            treeNode17.Text = "[0]";
-            treeNode18.Name = "Node8";
-            treeNode18.Text = "[1]";
-            treeNode19.Name = "Node1";
-            treeNode19.Text = "Spawnpoints";
-            treeNode20.Name = "Node2";
-            treeNode20.Text = "Misc. (FILI)";
-            treeNode21.Name = "Node3";
-            treeNode21.Text = "Exits";
-            this.curDataTV.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode16,
-            treeNode19,
-            treeNode20,
-            treeNode21});
             this.curDataTV.Size = new System.Drawing.Size(219, 429);
             this.curDataTV.TabIndex = 8;
             // 

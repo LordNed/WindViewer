@@ -794,7 +794,19 @@ namespace WWActorEdit
 
             foreach (IChunkType chunk in data.GetAllChunks<IChunkType>())
             {
-                curDataTV.Nodes.Add(chunk.GetType().Name);
+                TreeNode baseNode;
+                if (!curDataTV.Nodes.ContainsKey(chunk.GetType().Name))
+                {
+                    baseNode = curDataTV.Nodes.Add(chunk.GetType().Name, chunk.GetType().Name);
+                }
+                else
+                {
+                    TreeNode[] nodes = curDataTV.Nodes.Find(chunk.GetType().Name, false);
+                    baseNode = nodes[0];
+                }
+
+                baseNode.Nodes.Add("[" + baseNode.Nodes.Count + "] - " + chunk.GetType().Name);
+
             }
 
             //Expand everything
