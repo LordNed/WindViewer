@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Globalization;
 using System.Windows.Forms.VisualStyles;
 using Blue.Windows;
+using FolderSelect;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -620,29 +621,22 @@ namespace WWActorEdit
         {
             //This is a crappy version of the thing but I can't find the WinForm someone made that replicates
             //the OpenFileDialog but for folders instead... Sorry!
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.ValidateNames = false;
-            ofd.CheckFileExists = false;
-            ofd.CheckPathExists = true;
+            FolderSelectDialog ofd = new FolderSelectDialog();
             ofd.Title = "Navigate to a folder that ends in .wrkDir and press Open";
-            ofd.FileName = "Folder Selection";
 
             string workingDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.ProductName);
             ofd.InitialDirectory = workingDir;
-            ofd.SupportMultiDottedExtensions = true;
 
             //fbd.ShowNewFolderButton = false;
             //fbd.SelectedPath = workingDir;
             //fbd.Description = "Choose a Working Dir that ends in .wrkDir to load! This Working Dir should contain one or more 'Room<x>' or a 'Stage' folder.";
 
-            DialogResult result = ofd.ShowDialog();
-            if (result == DialogResult.OK)
+            if (ofd.ShowDialog(this.Handle)) ;
             {
                 //Ensure that the selected directory ends in ".wrkDir". If it doesn't, I don't want to figure out what happens.
-                string folderDir = Path.GetDirectoryName(ofd.FileName);
-                if (folderDir.EndsWith(".wrkDir"))
+                if (ofd.FileName.EndsWith(".wrkDir"))
                 {
-                    OpenFileFromWorkingDir(folderDir);
+                    OpenFileFromWorkingDir(ofd.FileName);
                 }
                 else
                 {

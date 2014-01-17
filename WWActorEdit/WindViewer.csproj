@@ -110,6 +110,8 @@
       <DependentUpon>SpawnpointEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\FileFormats\GenericData.cs" />
+    <Compile Include="Source\Util\FolderSelectDialog.cs" />
+    <Compile Include="Source\Util\Reflector.cs" />
     <Compile Include="Source\WorldspaceProject.cs" />
     <Compile Include="Source\FileFormats\ZeldaData.cs" />
     <Compile Include="Source\FSHelpers.cs" />
