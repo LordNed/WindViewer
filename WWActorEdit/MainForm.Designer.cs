@@ -67,27 +67,27 @@
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.fileBrowserTV = new System.Windows.Forms.TreeView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.curDataTV = new System.Windows.Forms.TreeView();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.panel5 = new System.Windows.Forms.Panel();
-            this.curDataTV = new System.Windows.Forms.TreeView();
-            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+            this.splitContainer3.Panel1.SuspendLayout();
+            this.splitContainer3.Panel2.SuspendLayout();
+            this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.panel5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
-            this.splitContainer3.Panel1.SuspendLayout();
-            this.splitContainer3.Panel2.SuspendLayout();
-            this.splitContainer3.SuspendLayout();
             this.SuspendLayout();
             // 
             // glControl
@@ -218,6 +218,7 @@
             this.renderRoomActorsToolStripMenuItem.Checked = true;
             this.renderRoomActorsToolStripMenuItem.CheckOnClick = true;
             this.renderRoomActorsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.renderRoomActorsToolStripMenuItem.Enabled = false;
             this.renderRoomActorsToolStripMenuItem.Name = "renderRoomActorsToolStripMenuItem";
             this.renderRoomActorsToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.renderRoomActorsToolStripMenuItem.Text = "Render &Room Actors";
@@ -227,6 +228,7 @@
             this.renderStageActorsToolStripMenuItem.Checked = true;
             this.renderStageActorsToolStripMenuItem.CheckOnClick = true;
             this.renderStageActorsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.renderStageActorsToolStripMenuItem.Enabled = false;
             this.renderStageActorsToolStripMenuItem.Name = "renderStageActorsToolStripMenuItem";
             this.renderStageActorsToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.renderStageActorsToolStripMenuItem.Text = "Render &Stage Actors";
@@ -241,6 +243,7 @@
             this.autoCenterCameraToolStripMenuItem.Checked = true;
             this.autoCenterCameraToolStripMenuItem.CheckOnClick = true;
             this.autoCenterCameraToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.autoCenterCameraToolStripMenuItem.Enabled = false;
             this.autoCenterCameraToolStripMenuItem.Name = "autoCenterCameraToolStripMenuItem";
             this.autoCenterCameraToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.autoCenterCameraToolStripMenuItem.Text = "Auto-&Center Camera";
@@ -420,6 +423,52 @@
             this.splitContainer1.SplitterDistance = 435;
             this.splitContainer1.TabIndex = 0;
             // 
+            // splitContainer3
+            // 
+            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer3.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer3.Name = "splitContainer3";
+            this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer3.Panel1
+            // 
+            this.splitContainer3.Panel1.Controls.Add(this.curDataTV);
+            // 
+            // splitContainer3.Panel2
+            // 
+            this.splitContainer3.Panel2.Controls.Add(this.button2);
+            this.splitContainer3.Panel2.Controls.Add(this.button1);
+            this.splitContainer3.Size = new System.Drawing.Size(219, 429);
+            this.splitContainer3.SplitterDistance = 393;
+            this.splitContainer3.TabIndex = 9;
+            // 
+            // curDataTV
+            // 
+            this.curDataTV.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.curDataTV.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.curDataTV.Location = new System.Drawing.Point(0, 0);
+            this.curDataTV.Name = "curDataTV";
+            this.curDataTV.Size = new System.Drawing.Size(219, 393);
+            this.curDataTV.TabIndex = 8;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(109, 6);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 1;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(9, 6);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -446,52 +495,6 @@
             this.panel5.Size = new System.Drawing.Size(225, 713);
             this.panel5.TabIndex = 1;
             // 
-            // curDataTV
-            // 
-            this.curDataTV.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.curDataTV.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.curDataTV.Location = new System.Drawing.Point(0, 0);
-            this.curDataTV.Name = "curDataTV";
-            this.curDataTV.Size = new System.Drawing.Size(219, 393);
-            this.curDataTV.TabIndex = 8;
-            // 
-            // splitContainer3
-            // 
-            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer3.Location = new System.Drawing.Point(3, 3);
-            this.splitContainer3.Name = "splitContainer3";
-            this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer3.Panel1
-            // 
-            this.splitContainer3.Panel1.Controls.Add(this.curDataTV);
-            // 
-            // splitContainer3.Panel2
-            // 
-            this.splitContainer3.Panel2.Controls.Add(this.button2);
-            this.splitContainer3.Panel2.Controls.Add(this.button1);
-            this.splitContainer3.Size = new System.Drawing.Size(219, 429);
-            this.splitContainer3.SplitterDistance = 393;
-            this.splitContainer3.TabIndex = 9;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(9, 6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(109, 6);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -515,15 +518,15 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.splitContainer3.Panel1.ResumeLayout(false);
+            this.splitContainer3.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+            this.splitContainer3.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
-            this.splitContainer3.Panel1.ResumeLayout(false);
-            this.splitContainer3.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
-            this.splitContainer3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

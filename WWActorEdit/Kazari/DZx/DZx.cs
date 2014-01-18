@@ -57,11 +57,11 @@ namespace WWActorEdit.Kazari.DZx
 
         public void Clear()
         {
-            foreach (object Obj in _Chunks)
+            /*foreach (object Obj in _Chunks)
             {
                 foreach (IDZxChunkElement C in ((FileChunk)Obj).Data)
                     if (GL.IsList(C.GLID) == true) GL.DeleteLists(C.GLID, 1);
-            }
+            }*/
         }
 
         public class FileChunk
@@ -85,34 +85,7 @@ namespace WWActorEdit.Kazari.DZx
                 int ReadOffset = (int)Offset;
                 for (int i = 0; i < Elements; i++)
                 {
-                    switch (Tag)
-                    {
-                        /* Typically in DZR */
-                        case "ACTR": Data[i] = new ACTR(FE, ref ReadOffset, NewNode, System.Drawing.Color.GreenYellow, ParentZA); continue;
-                        case "TGOB": Data[i] = new ACTR(FE, ref ReadOffset, NewNode, System.Drawing.Color.GreenYellow, ParentZA); continue;
-                        case "PLYR": Data[i] = new ACTR(FE, ref ReadOffset, NewNode, System.Drawing.Color.Orange); continue;
-                        case "PPNT":    /* Found in DmSpot0's Stage DZS for some reason... */
-                        case "RPPN": Data[i] = new RPPN(FE, ref ReadOffset, NewNode, System.Drawing.Color.LightSkyBlue); continue;
-                        case "SHIP": Data[i] = new SHIP(FE, ref ReadOffset, NewNode, System.Drawing.Color.BlueViolet); continue;
-                        case "TGDR":
-                        case "DOOR":
-                        case "Door": Data[i] = new TGDR(FE, ref ReadOffset, NewNode, System.Drawing.Color.HotPink, ParentZA); continue;
-                        case "LGTV": Data[i] = new LGTV(FE, ref ReadOffset, NewNode, System.Drawing.Color.DarkGray); continue;  /* ????? */
-
-                        /* Typically in DZS */
-                        case "MULT": Data[i] = new MULT(FE, ref ReadOffset, NewNode, System.Drawing.Color.LightGray); continue;
-                        case "TRES": Data[i] = new TRES(FE, ref ReadOffset, NewNode, System.Drawing.Color.SaddleBrown); continue;
-                        //case "EnvR": Data[i] = new EnvRChunk(FE, ref ReadOffset, NewNode, System.Drawing.Color.DarkSlateGray); continue;
-                    }
-
-                    switch (Tag.Substring(0, 3))
-                    {
-                        case "ACT": Data[i] = new ACTR(FE, ref ReadOffset, NewNode, System.Drawing.Color.GreenYellow, ParentZA); break;
-                        case "PLY": Data[i] = new ACTR(FE, ref ReadOffset, NewNode, System.Drawing.Color.Orange); break;
-                        case "SCO": Data[i] = new TGDR(FE, ref ReadOffset, NewNode, System.Drawing.Color.Yellow, ParentZA); break;
-                        case "TRE": Data[i] = new TRES(FE, ref ReadOffset, NewNode, System.Drawing.Color.SaddleBrown); break;
-                        default: Data[i] = new Generic(FE, ref ReadOffset, NewNode); NewNode.Tag = Data[i]; break;
-                    }
+                
                 }
 
                 ParentNode.Nodes.Add(NewNode);
@@ -122,11 +95,11 @@ namespace WWActorEdit.Kazari.DZx
 
             public void Render()
             {
-                GL.PushAttrib(AttribMask.AllAttribBits);
+                /*GL.PushAttrib(AttribMask.AllAttribBits);
                 GL.Disable(EnableCap.Texture2D);
                 foreach (IDZxChunkElement Chunk in Data.Where(C => C != null))
                     Chunk.Render();
-                GL.PopAttrib();
+                GL.PopAttrib();*/
             }
 
             public override string ToString()

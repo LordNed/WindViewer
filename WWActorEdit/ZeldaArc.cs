@@ -67,9 +67,9 @@ namespace WWActorEdit
             {
                 if (D.FileEntry.IsCompressed == true) continue;
 
-                foreach (DZx.FileChunk C in D.Chunks)
+                /*foreach (DZx.FileChunk C in D.Chunks)
                     foreach (IDZxChunkElement CE in C.Data)
-                        if (CE.HasChanged == true) CE.StoreChanges();
+                        if (CE.HasChanged == true) CE.StoreChanges();*/
 
                 D.FileEntry.BaseRARC.Save();
             }
@@ -78,9 +78,9 @@ namespace WWActorEdit
             {
                 if (D.FileEntry.IsCompressed == true) continue;
 
-                foreach (DZx.FileChunk C in D.Chunks)
+                /*foreach (DZx.FileChunk C in D.Chunks)
                     foreach (IDZxChunkElement CE in C.Data)
-                        if (CE.HasChanged == true) CE.StoreChanges();
+                        if (CE.HasChanged == true) CE.StoreChanges();*/
 
                 D.FileEntry.BaseRARC.Save();
             }

@@ -177,7 +177,6 @@ namespace WWActorEdit
             {
                 if (renderModelsToolStripMenuItem.Checked == true)
                 {
-                
                     foreach (ZArchive room in worldspaceProject.Rooms)
                     {
                         GL.PushMatrix();
@@ -199,6 +198,18 @@ namespace WWActorEdit
                         GL.PopMatrix();
                     }
       
+                }
+
+                if (renderCollisionToolStripMenuItem.Checked)
+                {
+                    foreach (ZArchive room in worldspaceProject.Rooms)
+                    {
+                        DZB D = room.GetFileByType<DZB>();
+                        if (D != null)
+                        {
+                            D.Render();
+                        }
+                    }
                 }
                 // Actors, 1st pass 
                 /*if (renderRoomActorsToolStripMenuItem.Checked == true)

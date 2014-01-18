@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms.VisualStyles;
 using WWActorEdit.Kazari;
+using WWActorEdit.Kazari.DZB;
 using WWActorEdit.Kazari.DZx;
 using WWActorEdit.Kazari.J3Dx;
 using WWActorEdit.Source.FileFormats;
@@ -257,30 +258,27 @@ namespace WWActorEdit.Source
                             case "brk":
                             case "btk":
                                 file = new J3Dx();
-                                file.Load(fileData);
                                 break;
 
                             /* Map Collision Format */
                             case "dzb":
-                                file = new GenericData();
-                                file.Load(fileData);
+                                file = new DZB();
                                 break;
 
                             /* Room and Stage Entity Data */
                             case "dzr":
                             case "dzs":
                                 file = new ZeldaData();
-                                file.Load(fileData);
                                 break;
 
                             default:
                                 Console.WriteLine("Unknown folder " + folder +
                                                   " found. Creating GenericData holder for it!");
                                 file = new GenericData();
-                                file.Load(fileData);
                                 break;
                         }
 
+                        file.Load(fileData);
                         file.FileName = Path.GetFileName(filePath);
                         file.FolderName = new DirectoryInfo(folder).Name;
 

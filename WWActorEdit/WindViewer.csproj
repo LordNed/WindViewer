@@ -109,6 +109,7 @@
     <Compile Include="Forms\SpawnpointEditor.Designer.cs">
       <DependentUpon>SpawnpointEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Kazari\DZx\DZx.cs" />
     <Compile Include="Source\FileFormats\GenericData.cs" />
     <Compile Include="Source\Util\FolderSelectDialog.cs" />
     <Compile Include="Source\Util\Reflector.cs" />
@@ -124,45 +125,12 @@
       <DependentUpon>ExceptionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ExceptionHandler.cs" />
-    <Compile Include="Kazari\DZx\LGTV.cs" />
-    <Compile Include="Kazari\DZx\MULT.cs" />
     <Compile Include="Kazari\J3Dx\J3Dx.cs" />
     <Compile Include="Kazari\DZB\DZB.cs" />
-    <Compile Include="Kazari\DZx\Generic.cs" />
-    <Compile Include="Kazari\DZx\SHIPControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Kazari\DZx\SHIPControl.Designer.cs">
-      <DependentUpon>SHIPControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Kazari\DZx\RPPNControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Kazari\DZx\RPPNControl.Designer.cs">
-      <DependentUpon>RPPNControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Kazari\DZx\TGDRControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Kazari\DZx\TGDRControl.Designer.cs">
-      <DependentUpon>TGDRControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Kazari\DZx\RPPN.cs" />
-    <Compile Include="Kazari\DZx\SHIP.cs" />
-    <Compile Include="Kazari\DZx\TGDR.cs" />
     <Compile Include="Kazari\HexEditBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Kazari\Common.cs" />
-    <Compile Include="Kazari\DZx\ACTR.cs" />
-    <Compile Include="Kazari\DZx\ACTRControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Kazari\DZx\ACTRControl.Designer.cs">
-      <DependentUpon>ACTRControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Kazari\DZx\DZx.cs" />
-    <Compile Include="Kazari\DZx\IDZRChunkElement.cs" />
     <Compile Include="Kazari\Helpers.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -194,18 +162,6 @@
     <EmbeddedResource Include="Forms\SpawnpointEditor.resx">
       <DependentUpon>SpawnpointEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Kazari\DZx\ACTRControl.resx">
-      <DependentUpon>ACTRControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Kazari\DZx\SHIPControl.resx">
-      <DependentUpon>SHIPControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Kazari\DZx\RPPNControl.resx">
-      <DependentUpon>RPPNControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Kazari\DZx\TGDRControl.resx">
-      <DependentUpon>TGDRControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -228,25 +184,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Kazari\RARCPacker.cs" />
-    <Compile Include="Kazari\DZx\MULTControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Kazari\DZx\TRES.cs" />
-    <Compile Include="Kazari\DZx\TRESControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Kazari\DZx\TRESControl.designer.cs">
-      <DependentUpon>TRESControl.cs</DependentUpon>
-    </Compile>
-    <None Include="Kazari\DZx\TRESControl.resx">
-      <DependentUpon>TRESControl.cs</DependentUpon>
-    </None>
-    <Compile Include="Kazari\DZx\MULTControl.designer.cs">
-      <DependentUpon>MULTControl.cs</DependentUpon>
-    </Compile>
-    <None Include="Kazari\DZx\MULTControl.resx">
-      <DependentUpon>MULTControl.cs</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="windviewer.ico" />
@@ -273,6 +210,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -11,12 +11,13 @@ using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using WWActorEdit.Source;
 
 #endregion
 
 namespace WWActorEdit.Kazari.DZB
 {
-    public class DZB
+    public class DZB : BaseArchiveFile
     {
         #region Variables
 
@@ -34,6 +35,11 @@ namespace WWActorEdit.Kazari.DZB
 
         #region Constructors, DZB Loader, Rendering
 
+        public DZB()
+        {
+            Root = null;
+            Name = null;
+        }
         public DZB(RARC.FileEntry FE, TreeNode TN)
         {
             Root = TN;
@@ -46,9 +52,9 @@ namespace WWActorEdit.Kazari.DZB
             if (GL.IsList(GLID) == true) GL.DeleteLists(GLID, 1);
         }
 
-        public void Load(byte[] DataArray)
+        public override void Load(byte[] data)
         {
-            Data = DataArray;
+            Data = data;
 
             Header = new FileHeader(Data);
 
@@ -64,9 +70,15 @@ namespace WWActorEdit.Kazari.DZB
             for (int i = 0; i < Header.TypeCount; i++)
                 Types.Add(new Type(Data, ref ReadOffset));
 
-            Root.Nodes.Add(Helpers.CreateTreeNode(Name, this, string.Format("Size: {0:X6}", Data.Length)));
+            if(Root != null)
+                Root.Nodes.Add(Helpers.CreateTreeNode(Name, this, string.Format("Size: {0:X6}", Data.Length)));
 
             Prepare();
+        }
+
+        public override void Save(BinaryWriter stream)
+        {
+            stream.Write(Data);
         }
 
         public void Render()
