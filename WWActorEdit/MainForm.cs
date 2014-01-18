@@ -243,258 +243,6 @@ namespace WWActorEdit
             glControl.SwapBuffers();
         }
 
-        /// <summary>
-        /// In a 'Stage', there is data that is indexed by Room number. The actual rooms don't store
-        /// this data internally, it is only by file name. So we're going to strip apart the filename
-        /// to get the room number. If we can't get the room from the filename (ie: user has renamed
-        /// archive) then we'll just ask them.
-        /// </summary>
-        /// <param name="NewArc"></param>
-        private void GetRoomNumber(ZeldaArc NewArc)
-        {
-            int roomNumber = 0;
-
-            //We're going to trim the Filepath down to just name - ie: "Room0.arc / R00_00.arc"
-            string fileName = Path.GetFileName(NewArc.Filename);
-
-            //If it starts with "Room" then it's (probably) a Windwaker Archive.
-            if (fileName.Substring(0, 4).ToLower() == "room")
-            {
-                //Use Regex here to grab what is between "Room" and ".arc", since it goes up to "Room23.arc"
-                string[] numbers = Regex.Split(fileName, @"\D+");
-                string trimmedNumbers = String.Join("", numbers);
-                trimmedNumbers = trimmedNumbers.Trim();
-
-                roomNumber = int.Parse(trimmedNumbers);
-            }
-            //If it starts with R ("Rxx_00, xx being Room Number"), it's Twlight Princess
-            else if (fileName.Substring(0, 1).ToLower() == "r")
-            {
-                //I *think* these follow the Rxx_00 pattern, where xx is the room number. _00 can change, xx might be 1 or 3, who knows!
-
-                //We're going to use RegEx here to make sure we only grab what is between R and _00 which could be multipl.e
-                string[] numbers = Regex.Split(fileName.Substring(0, fileName.Length - 6), @"\D+");
-                string trimmedNumbers = String.Join("", numbers);
-                trimmedNumbers = trimmedNumbers.Trim();
-
-                roomNumber = int.Parse(trimmedNumbers);
-            }
-            else
-            {
-                InvalidRoomNumber popup = new InvalidRoomNumber();
-                popup.DescriptionLabel.Text =
-                    "Failed to determine room number from file name." + Environment.NewLine + "Expected: Room<x>.arc or R<xx>_00, got: " +
-                    fileName;
-                popup.ShowDialog(this);
-
-                roomNumber = (int)popup.roomNumberSelector.Value;
-                Console.WriteLine("User chose: " + roomNumber);
-            }
-
-            NewArc.RoomNumber = roomNumber;
-        }
-
-        /// <summary>
-        /// This is a terribly placed/named function, but I'm going to leave it for now until I fully understand it.
-        /// My best guess is that the "Stage" file contains the translation/rotation of each individual room. These
-        /// can be loaded in any order in WindViewer, so my guess is that they're just set every frame instead of
-        /// when a Stage/Room is loaded. Weird.
-        /// </summary>
-        /// <param name="A"></param> 
-        private void GetGlobalTranslation(ZeldaArc A)
-        {
-            /*if (Stage != null)
-            {
-                foreach (DZx D in Stage.DZSs)
-                {
-                    foreach (DZx.FileChunk Chunk in D.Chunks)
-                    {
-                        foreach (IDZxChunkElement ChunkElement in Chunk.Data.Where(C => C is MULT && ((MULT)C).RoomNumber == A.RoomNumber))
-                        {
-                            A.GlobalTranslation = new Vector3(((MULT)ChunkElement).Translation.X, 0.0f, ((MULT)ChunkElement).Translation.Y);
-                        }
-                    }
-                }
-            }*/
-        }
-
-        private void GetGlobalRotation(ZeldaArc A)
-        {
-            /*if (Stage != null)
-            {
-                foreach (DZx D in Stage.DZSs)
-                {
-                    foreach (DZx.FileChunk Chunk in D.Chunks)
-                    {
-                        foreach (IDZxChunkElement ChunkElement in Chunk.Data.Where(C => C is MULT && ((MULT)C).RoomNumber == A.RoomNumber))
-                        {
-                            A.GlobalRotation = ((MULT)ChunkElement).Rotation;
-                        }
-                    }
-                }
-            }*/
-        }
-
-        private void LoadRARC(string Filename, bool IsRoom = true, bool IgnoreModels = false)
-        {
-            /*if (Filename != string.Empty)
-            {
-                ZeldaArc NewArc = new ZeldaArc(Filename, treeView1, IgnoreModels);
-
-                if (IsRoom == true)
-                {
-                    GetRoomNumber(NewArc);
-                    GetGlobalTranslation(NewArc);
-                    GetGlobalRotation(NewArc);
-                    Rooms.Add(NewArc);
-                }
-                else
-                    Stage = NewArc;
-
-                if (NewArc.Archive.IsCompressed == true)
-                    MessageBox.Show(string.Format("RARC archive '{0}' is compressed; changes cannot be saved!", Path.GetFileName(NewArc.Archive.Filename)), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                else
-                    saveChangesToolStripMenuItem.Enabled = true;
-            }*/
-        }
-
-        private void UnloadAllRARCs()
-        {
-            /*foreach (ZeldaArc A in Rooms) A.Clear();
-            if (Stage != null) Stage.Clear();
-
-            Rooms = new List<ZeldaArc>();
-            Stage = null;
-
-            treeView1.BeginUpdate();
-            treeView1.Nodes.Clear();
-            treeView1.EndUpdate();
-
-            saveChangesToolStripMenuItem.Enabled = false;
-
-            toolStripStatusLabel1.Text = "Ready";*/
-        }
-
-        private void openRoomRARCToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            /*string[] Files = Helpers.ShowOpenFileDialog("GameCube/Wii RARC archives (*.arc; *.rarc)|*.arc; *.rarc|All Files (*.*)|*.*", true);
-            Array.Sort(Files);
-
-            if (Files.Length == 1 && Files[0] == string.Empty) return;
-
-            Helpers.MassEnableDisable(this.Controls, false);
-
-            if (Files.Length > 5 && (renderRoomActorsToolStripMenuItem.Checked == true || renderStageActorsToolStripMenuItem.Checked == true))
-            {
-                if (MessageBox.Show("Rendering 5+ rooms while actor rendering is enabled might very likely cause heavy slowdown. Disable actor rendering?",
-                    "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == System.Windows.Forms.DialogResult.Yes)
-                {
-                    renderRoomActorsToolStripMenuItem.Checked = false;
-                    renderStageActorsToolStripMenuItem.Checked = false;
-                }
-            }
-
-            treeView1.BeginUpdate();
-
-            toolStripProgressBar1.Visible = true;
-            toolStripProgressBar1.Step = 1;
-            toolStripProgressBar1.Maximum = Files.Length;
-
-            foreach (string F in Files)
-            {
-                toolStripStatusLabel1.Text = string.Format("Loading '{0}'...", Path.GetFileName(F));
-                LoadRARC(F, true);
-                toolStripProgressBar1.PerformStep();
-                Application.DoEvents();
-            }
-
-            toolStripProgressBar1.Visible = false;
-
-            treeView1.EndUpdate();
-
-            toolStripStatusLabel1.Text = string.Format("Loaded {0} room files. Ready!", Files.Length);
-
-            Helpers.MassEnableDisable(this.Controls, true);*/
-        }
-
-        private void openStageRARCToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string[] Files = Helpers.ShowOpenFileDialog("GameCube/Wii RARC archives (*.arc; *.rarc)|*.arc; *.rarc|All Files (*.*)|*.*");
-            if (Files[0] == string.Empty) return;
-
-            LoadRARC(Files[0], false);
-
-            toolStripStatusLabel1.Text = "Loaded stage file. Ready!";
-
-            /*foreach (ZeldaArc A in Rooms)
-            {
-                GetGlobalTranslation(A);
-                GetGlobalRotation(A);
-            }*/
-        }
-
-        private void saveChangesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            /*foreach (ZeldaArc A in Rooms) A.Save();
-            if (Stage != null) Stage.Save();*/
-        }
-
-        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Helpers.Camera.Initialize(new Vector3(0.0f, 0.0f, -5.0f));
-            UnloadAllRARCs();
-        }
-
-        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            /*object Selected = ((TreeView)sender).SelectedNode.Tag;
-            Console.WriteLine("TreeView clicked, Selected: " + Selected);
-
-            if (SelectedDZRChunkElement != null)
-            {
-                SelectedDZRChunkElement.Highlight = false;
-                if (SelectedDZRChunkElement.EditControl != null)
-                    SelectedDZRChunkElement.EditControl.Dispose();
-            }
-
-            Panel TargetPanel = (Selected is IDZxChunkElement && (IDZxChunkElement)Selected is Generic) ? panel2 : panel1;
-            Panel OtherPanel = (Selected is IDZxChunkElement && (IDZxChunkElement)Selected is Generic) ? panel1 : panel2;
-            OtherPanel.Visible = false;
-
-            TargetPanel.SuspendLayout();
-
-            if (Selected is IDZxChunkElement)
-            {
-                SelectedDZRChunkElement = (IDZxChunkElement)Selected;
-
-                SelectedDZRChunkElement.Highlight = true;
-                SelectedDZRChunkElement.ShowControl(TargetPanel);
-
-                if (autoCenterCameraToolStripMenuItem.Checked && (SelectedDZRChunkElement is Generic) == false)
-                {
-                    Vector3 CamPos = Vector3.Zero;
-                    if (SelectedDZRChunkElement is ACTR)
-                        CamPos = (-((ACTR)SelectedDZRChunkElement).Position * 0.005f);
-                    else if (SelectedDZRChunkElement is RPPN)
-                        CamPos = (-((RPPN)SelectedDZRChunkElement).Position * 0.005f);
-                    else if (SelectedDZRChunkElement is SHIP)
-                        CamPos = (-((SHIP)SelectedDZRChunkElement).Position * 0.005f);
-                    else if (SelectedDZRChunkElement is TGDR)
-                        CamPos = (-((TGDR)SelectedDZRChunkElement).Position * 0.005f);
-                    else if (SelectedDZRChunkElement is TRES)
-                        CamPos = (-((TRES)SelectedDZRChunkElement).Position * 0.005f);
-                    else if (SelectedDZRChunkElement is MULT)
-                        CamPos = (-(new Vector3(((MULT)SelectedDZRChunkElement).Translation.X, 0.0f, ((MULT)SelectedDZRChunkElement).Translation.Y) * 0.005f));
-
-                    Helpers.Camera.Initialize(CamPos - new Vector3(0, 0, 2.0f));
-                }
-            }
-            else
-                TargetPanel.Visible = false;
-
-            TargetPanel.ResumeLayout();*/
-        }
-
         #region Toolstrip Callbacks
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -503,18 +251,17 @@ namespace WWActorEdit
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Version AppVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            DateTime BuildDate = new DateTime(2000, 1, 1).AddDays(AppVersion.Build).AddSeconds(AppVersion.Revision * 2);
+            Version appVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            DateTime buildDate = new DateTime(2000, 1, 1).AddDays(appVersion.Build).AddSeconds(appVersion.Revision * 2);
+
 
             MessageBox.Show(
-                Application.ProductName + " - Written 2012 by xdaniel - Build " + BuildDate.ToString(CultureInfo.InvariantCulture) + Environment.NewLine +
-                "Improvements by LordNed, Abahbob, Pho, and Sage of Mirrors" + Environment.NewLine +
-                Environment.NewLine +
-                "RARC, Yaz0 and J3Dx/BMD documentation by thakis" + Environment.NewLine +
-                "DZB and DZx documentation by Sage of Mirrors, Twili, fkualol, xdaniel, et al." + Environment.NewLine +
-                Environment.NewLine +
-                "Greetings to The GCN's WW hacking thread!",
-                "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Application.ProductName + " - Upgraded in 2014 by LordNed" + Environment.NewLine + Environment.NewLine +
+                "Original written by xdaniel. Improvements by Pho, Abahbob and Sage of Mirrors." + Environment.NewLine +
+                "RARC, Yaz0 and J3dx/BMD documentation by thakis, DZB, DZR, DZS documentation by" + Environment.NewLine +
+                "Sage of Mirrors, Twili, fkualol, xdaniel, etc. Built on the backs of those who came before us." +
+            Environment.NewLine + Environment.NewLine + "[Build: " + buildDate.ToString(CultureInfo.InvariantCulture) + "]", "About",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void environmentLightingEditorToolStripMenuItem_Click(object sender, EventArgs e)
@@ -522,45 +269,33 @@ namespace WWActorEdit
             EnvironmentLightingEditorForm popup = new EnvironmentLightingEditorForm(this);
             popup.Show(this);
         }
-
         private void exitEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ExitEditor popup = new ExitEditor(this);
             popup.Show(this);
         }
-
-        private void wikiToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start(@"https://github.com/pho/WindViewer/wiki/");
-        }
-
         private void spawnEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SpawnpointEditor popup = new SpawnpointEditor(this);
             popup.Show(this);
         }
 
+        /// <summary>
+        /// Open the link to our Wiki which has more information about file formats, their usages, etc.
+        /// Launches the default web browser on the users computer.
+        /// </summary>
+        private void wikiToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start(@"https://github.com/pho/WindViewer/wiki/");
+        }
+
+        /// <summary>
+        /// Opens a Utility for converting Big-Endian floats from Hexidecimal to Float and back.
+        /// </summary>
         private void floatConverterToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FloatConverter popup = new FloatConverter();
             popup.Show(this);
-        }
-
-        private void treeView2_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                string clickedNode = e.Node.Name;
-                MenuItem test = new MenuItem("Test");
-                test.MenuItems.Add("Test2");
-                test.MenuItems.Add("Test3");
-
-                ContextMenu contextMenu = new ContextMenu();
-                contextMenu.MenuItems.Add(test);
-
-
-                contextMenu.Show(fileBrowserTV, e.Location);
-            }
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms.VisualStyles;
 using WWActorEdit.Kazari;
 using WWActorEdit.Kazari.DZx;
@@ -73,17 +74,53 @@ namespace WWActorEdit.Source
                 {
                     Console.WriteLine("Loaded Stage for " + Name);
                     Stage = arc;
-                }
-                else if (folderName.ToLower().StartsWith("room"))
-                {
-                    Console.WriteLine("Loaded room \"" + folderName + "\" for " + Name);
-                    Rooms.Add(arc);
+                    arc.RoomNumber = -1;
                 }
                 else
                 {
-                    Console.WriteLine("Loaded folder [" + folderName +
-                                      "]. Not sure if it's a room or a stage, assuming room...");
+                    Console.WriteLine("Loading \"" + folderName + "\" as Room for " + Name);
                     Rooms.Add(arc);
+
+                    // In a 'Stage', there is data that is indexed by Room number. The actual rooms don't store
+                    // this data internally, it is only by file name. So we're going to strip apart the filename
+                    // to get the room number. If we can't get the room from the filename (ie: user has renamed
+                    // archive) then we'll just ask them.
+                    int roomNumber = 0;
+                    
+                    //If it starts with "Room" then it's (probably) a Windwaker Archive.
+                    if (folderName.Substring(0, 4).ToLower() == "room")
+                    {
+                        //Use Regex here to grab what is between "Room" and ".arc", since it goes up to "Room23.arc"
+                        string[] numbers = Regex.Split(folderName, @"\D+");
+                        string trimmedNumbers = String.Join("", numbers);
+                        trimmedNumbers = trimmedNumbers.Trim();
+
+                        roomNumber = int.Parse(trimmedNumbers);
+                    }
+                    //If it starts with R ("Rxx_00, xx being Room Number"), it's Twlight Princess
+                    else if (folderName.Substring(0, 1).ToLower() == "r")
+                    {
+                        //I *think* these follow the Rxx_00 pattern, where xx is the room number. _00 can change, xx might be 1 or 3, who knows!
+
+                        //We're going to use RegEx here to make sure we only grab what is between R and _00 which could be multipl.e
+                        string[] numbers = Regex.Split(folderName.Substring(0, folderName.Length - 6), @"\D+");
+                        string trimmedNumbers = String.Join("", numbers);
+                        trimmedNumbers = trimmedNumbers.Trim();
+
+                        roomNumber = int.Parse(trimmedNumbers);
+                    }
+                    else
+                    {
+                        InvalidRoomNumber popup = new InvalidRoomNumber();
+                        popup.DescriptionLabel.Text =
+                            "Failed to determine room number from file name." + Environment.NewLine + "Expected: Room<x>.arc or R<xx>_00, got: " +
+                            folderName;
+                        popup.ShowDialog(MainForm.ActiveForm);
+
+                        roomNumber = (int)popup.roomNumberSelector.Value;
+                    }
+
+                    arc.RoomNumber = roomNumber;
                 }
             }
 
@@ -135,6 +172,9 @@ namespace WWActorEdit.Source
 
         //This is the name of the Archive, ie: "Room0" "Stage", etc.
         public string Name;
+
+        //If this is a Room, the Room number, -1 if stage.
+        public int RoomNumber;
 
         public ZArchive()
         {

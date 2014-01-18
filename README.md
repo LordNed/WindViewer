@@ -32,5 +32,11 @@ WindViewer is written using Visual Studios 2012. This means the project solution
   * http://www.amnoid.de/gc/ ( RARC and Yaz0 specs) 
  
 # Chat: #
-  
-  We've been checking out HipChat. You can join us here: https://www.hipchat.com/gbubSdvIA
+We've been checking out HipChat. You can join us here: https://www.hipchat.com/gbubSdvIA
+
+# Missing Features: #
+Room / Stage Actor Rendering - Maybe use Multiple Inheritance to implement an extra interface to pull the position from the world? 
+Unloading Archives
+Saving Changes to Worldspace Project
+Toolstrip Status Label Text
+Translation/Rotation of Rooms
