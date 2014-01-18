@@ -541,7 +541,5 @@ namespace WWActorEdit
             //Expand everything
             curDataTV.ExpandAll();
         }
-
-        
     }
 }

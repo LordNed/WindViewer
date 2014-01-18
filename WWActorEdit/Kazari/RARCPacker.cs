@@ -15,67 +15,69 @@ namespace WWActorEdit.Kazari
 
 		struct RarcHeader
 		{
-			public string type; //'RARC'
-			public uint size; //size of the .arc file
-			public uint unknown1; //0x00000020 Either this or Unknown6 is the offset to the NodeTable, and the other is how much should be added to all the offsets?
-			public uint dataStartOffset; //Where the actual data starts. Add 0x20 to this.
+			public string Magic; //'RARC'
+			public uint Size; //size of the .arc file
+			public uint Unknown1; //0x00000020 Either this or Unknown6 is the offset to the NodeTable, and the other is how much should be added to all the offsets?
+			public uint DataStartOffset; //Where the actual data starts. Add 0x20 to this.
 
-			public uint sizeOfDataTable1;
-			public uint sizeOfDataTable2;
-			public uint unknown4;
-			public uint unknown5;
+			public uint SizeOfDataTable1;
+			public uint SizeOfDataTable2;
+			public uint Unknown4;
+			public uint Unknown5;
 
-			public uint numNodes;
-			public uint unknown6; //0x00000020
-			public uint numFiles1; //Total number of file entries
-			public uint fileEntriesOffset; //Add 0x20
+			public uint NumNodes;
+			public uint Unknown6; //0x00000020
+			public uint NumFiles1; //Total number of file entries
+			public uint FileEntriesOffset; //Add 0x20
 
-			public uint sizeOfStringTable; //Size of StringTable after it has been padded out so that the data table begins at an address ending in 0
-			public uint stringTableOffset; //Where is the string table stored? You have to add 0x20 to this value.
-			public ushort numFiles2; //Number of file entries
-			public ushort unknown8;
-			public uint unknown9;
+			public uint SizeOfStringTable; //Size of StringTable after it has been padded out so that the data table begins at an address ending in 0
+			public uint StringTableOffset; //Where is the string table stored? You have to add 0x20 to this value.
+			public ushort NumFiles2; //Number of file entries
+			public ushort Unknown8;
+			public uint Unknown9;
 		}
 
 		struct Node
 		{
-			public string type; //First four letters of the folder name, in CAPS
-			public uint filenameOffset; //directory name, offset into string table
-			public ushort foldernameHash; //A hash(?) of the foldername
-			public ushort numFileEntries; //how many files belong to this node
-			public uint firstFileEntryOffset; //Number of the first file entry that belongs to this node, Zero-based
+			public string Name; //First four letters of the folder name, in CAPS
+			public uint FilenameOffset; //directory name, offset into string table
+			public ushort FoldernameHash; //A hash(?) of the foldername
+			public ushort NumFileEntries; //how many files belong to this node
+			public uint FirstFileEntryOffset; //Number of the first file entry that belongs to this node, Zero-based [from?]
 		}
 
 		struct FileEntry
 		{
-			public ushort id; //file id. If this is 0xFFFF, then this entry is a subdirectory link
-			public ushort filenameHash; //A hash(?) of the file/foldername
-			public ushort unknown2; //If folder 0x0200, if file 0x1100.    This should be a byte and filenameOffset 3 bytes? 
-			public ushort filenameOffset; //file/subdir name, offset into string table
-			public uint dataOffset; //offset to file data (for subdirs: index of Node representing the subdir)
-			public uint dataSize; //size of data
-			public uint zero; //seems to be always '0'
+			public ushort Id; //file id. If this is 0xFFFF, then this entry is a subdirectory link
+			public ushort FilenameHash; //A hash(?) of the file/foldername
+			public ushort Unknown2; //If folder 0x0200, if file 0x1100.    This should be a byte and filenameOffset 3 bytes? 
+			public ushort FilenameOffset; //file/subdir name, offset into string table
+			public uint DataOffset; //offset to file data (for subdirs: index of Node representing the subdir)
+			public uint DataSize; //size of data
+			public uint Zero; //seems to be always '0'
 
 			//unknown2
 			//0x0200 = Folder
 			//0x9500 = .szs layer data
 		};
 
-		public static string stringTable;
-		public static uint numNodesDone;    //How many nodes have been filled out
-		public static uint numFilesWithData;//How many files with data have been added
-		public static uint lengthOfDataTable;//How much data has been added
+		private static string _stringTable;
+        private static uint _numNodesDone;    //How many nodes have been filled out
+        private static uint _numFilesWithData;//How many files with data have been added
+        private static uint _lengthOfDataTable;//How much data has been added
 
-		static FileEntry[] fileEntries;
-		static Node[] nodes;
-		static byte[][] filesData;
+		private static FileEntry[] _fileEntries;
+		private static Node[] _nodes;
+		private static byte[][] _filesData;
 
-		public static int totalNumFilesAdded;
+		private static int _totalNumFilesAdded;
 
 
-		public static int countRARCDirs(RARC.FileNode Root){
+		public static int countRARCDirs(RARC.FileNode root)
+        {
 			int count = 0;
-			foreach (RARC.FileNode n in Root.ChildNodes) {
+			foreach (RARC.FileNode n in root.ChildNodes)
+            {
                 Console.WriteLine("Node: " + n.NodeName);
                 count++;
                 count += countRARCDirs (n);
@@ -85,30 +87,34 @@ namespace WWActorEdit.Kazari
 		}
 
 
-		public static int countRARCFiles(RARC.FileNode Root){
+		public static int CountRarcFiles(RARC.FileNode root)
+        {
 			int count = 0;
-            foreach (RARC.FileEntry f in Root.Files) {
+            foreach (RARC.FileEntry f in root.Files)
+            {
                 Console.WriteLine("File: " + f.FileName);
 				count++;
 			}
 
-            foreach (RARC.FileNode n in Root.ChildNodes) {
-				count += countRARCFiles (n);
+            foreach (RARC.FileNode n in root.ChildNodes)
+            {
+				count += CountRarcFiles (n);
 			}
 
 			return count;
 		}
 
 
-        public static void CreateEntries(RARC.FileNode Root){
+        public static void CreateEntries(RARC.FileNode root)
+        {
 
-            CreateFileEntries(Root);
-            CreateNodeEntries(Root);
+            CreateFileEntries(root);
+            CreateNodeEntries(root);
 
             CreateDummyFiles();
 
 
-            foreach (RARC.FileNode n in Root.ChildNodes) {
+            foreach (RARC.FileNode n in root.ChildNodes) {
                 CreateNodes(n);
                 CreateEntries(n);
 
@@ -116,143 +122,147 @@ namespace WWActorEdit.Kazari
 
         }
 
-
-        public static void CreateFileEntries(RARC.FileNode Root){
-
-            foreach (RARC.FileEntry f in Root.Files) {
+        public static void CreateFileEntries(RARC.FileNode root)
+        {
+            foreach (RARC.FileEntry f in root.Files)
+            {
                 Console.WriteLine("Creating fileEntry for " + f.FileName);
-                fileEntries[totalNumFilesAdded].id = (ushort)totalNumFilesAdded;
+                _fileEntries[_totalNumFilesAdded].Id = (ushort)_totalNumFilesAdded;
 
                 if (f.FileName.EndsWith(".szs"))//Check if szs file and use right.. marker?
-                    fileEntries[totalNumFilesAdded].unknown2 = 0x9500;
+                    _fileEntries[_totalNumFilesAdded].Unknown2 = 0x9500;
                 else
-                    fileEntries[totalNumFilesAdded].unknown2 = 0x1100;
+                    _fileEntries[_totalNumFilesAdded].Unknown2 = 0x1100;
 
-                fileEntries[totalNumFilesAdded].filenameOffset = (ushort)stringTable.Length;
+                _fileEntries[_totalNumFilesAdded].FilenameOffset = (ushort)_stringTable.Length;
                 string fileName = f.FileName;
-                stringTable = stringTable + fileName + (char)0x00;
-                fileEntries[totalNumFilesAdded].filenameHash = Hash(fileName);
+                _stringTable = _stringTable + fileName + (char)0x00;
+                _fileEntries[_totalNumFilesAdded].FilenameHash = Hash(fileName);
 
-                fileEntries[totalNumFilesAdded].dataOffset = lengthOfDataTable;
-                lengthOfDataTable += (uint)f.fileData.Length;
+                _fileEntries[_totalNumFilesAdded].DataOffset = _lengthOfDataTable;
+                _lengthOfDataTable += (uint)f.fileData.Length;
                 //Pad the data table out so new files start at a 0-based address
-                while ((lengthOfDataTable % 16) != 0)
-                    lengthOfDataTable++;
-                if ((lengthOfDataTable % 32) != 0)//Check the new address is a multiple of 32 and add 16 if not
-                    lengthOfDataTable += 16;
-                filesData[numFilesWithData] = f.fileData;
+                while ((_lengthOfDataTable % 16) != 0)
+                    _lengthOfDataTable++;
+                if ((_lengthOfDataTable % 32) != 0)//Check the new address is a multiple of 32 and add 16 if not
+                    _lengthOfDataTable += 16;
+                _filesData[_numFilesWithData] = f.fileData;
 
-                fileEntries[totalNumFilesAdded].dataSize = (uint)f.fileData.Length;
+                _fileEntries[_totalNumFilesAdded].DataSize = (uint)f.fileData.Length;
 
-                numFilesWithData++;
-                totalNumFilesAdded++;
+                _numFilesWithData++;
+                _totalNumFilesAdded++;
             }
 
         }
 
-        public static void CreateNodeEntries(RARC.FileNode Root){
+        public static void CreateNodeEntries(RARC.FileNode root)
+        {
 
-            foreach (RARC.FileNode n in Root.ChildNodes) {
+            foreach (RARC.FileNode n in root.ChildNodes)
+            {
                 Console.WriteLine("Creating fileEntry for node " + n.NodeName);
 
-                fileEntries[totalNumFilesAdded].id = 0xFFFF;
-                fileEntries[totalNumFilesAdded].unknown2 = 0x0200;
-                fileEntries[totalNumFilesAdded].filenameOffset = (ushort)0xFFFE;
+                _fileEntries[_totalNumFilesAdded].Id = 0xFFFF;
+                _fileEntries[_totalNumFilesAdded].Unknown2 = 0x0200;
+                _fileEntries[_totalNumFilesAdded].FilenameOffset = (ushort)0xFFFE;
                 string fileName = n.NodeName;
-                fileEntries[totalNumFilesAdded].filenameHash = Hash(fileName);
-                fileEntries[totalNumFilesAdded].dataOffset = (uint)0xFFFE;
-                fileEntries[totalNumFilesAdded].dataSize = 0x10;
+                _fileEntries[_totalNumFilesAdded].FilenameHash = Hash(fileName);
+                _fileEntries[_totalNumFilesAdded].DataOffset = (uint)0xFFFE;
+                _fileEntries[_totalNumFilesAdded].DataSize = 0x10;
 
-                totalNumFilesAdded++;
+                _totalNumFilesAdded++;
 
             }
 
         }
 
 
-        public static void CreateNodes(RARC.FileNode n){
+        public static void CreateNodes(RARC.FileNode n)
+        {
             Console.WriteLine("Creating Node for " + n.NodeName);
             string dirName = n.NodeName;
             dirName = dirName.ToUpper();
-            for (int c = 0; c < dirName.Length; c++) {
+            for (int c = 0; c < dirName.Length; c++)
+            {
                 if (c == 4)
                     break;
-                nodes[numNodesDone].type = nodes[numNodesDone].type + dirName[c];
+                _nodes[_numNodesDone].Name = _nodes[_numNodesDone].Name + dirName[c];
 
             }
-            nodes[numNodesDone].filenameOffset = (uint)stringTable.Length;
-            stringTable = stringTable + dirName.ToLower() + (char)0x00;
+            _nodes[_numNodesDone].FilenameOffset = (uint)_stringTable.Length;
+            _stringTable = _stringTable + dirName.ToLower() + (char)0x00;
             int numFiles = n.Files.Count;
-            nodes[numNodesDone].numFileEntries = (ushort)(numFiles + 2);
-            nodes[numNodesDone].firstFileEntryOffset = (uint)totalNumFilesAdded;
+            _nodes[_numNodesDone].NumFileEntries = (ushort)(numFiles + 2);
+            _nodes[_numNodesDone].FirstFileEntryOffset = (uint)_totalNumFilesAdded;
 
             dirName = n.NodeName;
-            nodes[numNodesDone].foldernameHash = Hash(dirName);
+            _nodes[_numNodesDone].FoldernameHash = Hash(dirName);
 
-            numNodesDone++;
+            _numNodesDone++;
         }
 
 
-		public static void CompressRARC(string FullPath, RARC.FileNode Root)
+		public static void CompressRARC(string fullPath, RARC.FileNode root)
 		{
 
-            Console.WriteLine("\n>> Compressing " + Root.NodeName + " to " + FullPath);
-            string newFile = Root.NodeName;
+            Console.WriteLine("\n>> Compressing " + root.NodeName + " to " + fullPath);
+            string newFile = root.NodeName;
 
-			stringTable = CreateStringTable();//Setup the string table
+			_stringTable = CreateStringTable();//Setup the string table
 
-			int directoriesCount = countRARCDirs(Root);
-			nodes = new Node[directoriesCount + 1]; //Add 1 for the ROOT node
+			int directoriesCount = countRARCDirs(root);
+			_nodes = new Node[directoriesCount + 1]; //Add 1 for the ROOT node
 
-			numNodesDone = 0;
-			numFilesWithData = 0;
-			lengthOfDataTable = 0;
+			_numNodesDone = 0;
+			_numFilesWithData = 0;
+			_lengthOfDataTable = 0;
 
 			//Fill out the ROOT node
-			nodes[0].type = "ROOT";
+			_nodes[0].Name = "ROOT";
 
-			nodes[0].filenameOffset = (uint)stringTable.Length;
+			_nodes[0].FilenameOffset = (uint)_stringTable.Length;
 			String rootDirName = newFile;
-			stringTable = stringTable + rootDirName + (char)0x00;
+			_stringTable = _stringTable + rootDirName + (char)0x00;
 
-			nodes[0].foldernameHash = Hash(rootDirName);
+			_nodes[0].FoldernameHash = Hash(rootDirName);
 
-			nodes[0].numFileEntries = (ushort) (Root.Files.Count + Root.ChildNodes.Count + 2);
+			_nodes[0].NumFileEntries = (ushort) (root.Files.Count + root.ChildNodes.Count + 2);
 
-			nodes[0].firstFileEntryOffset = 0;
+			_nodes[0].FirstFileEntryOffset = 0;
 
-			numNodesDone++; //One node is complete
+			_numNodesDone++; //One node is complete
 
 
 			//Get the total number of subdirectories and files
 			//string[] allFiles = Directory.GetFiles(args[0], "*", SearchOption.AllDirectories);
 			//int numOfFilesAndDirs = allFiles.Length + directoriesCount;
-			int filesCount = countRARCFiles(Root);
+			int filesCount = CountRarcFiles(root);
 			int numOfFilesAndDirs = filesCount + directoriesCount;
 
 			//Now set up an array of FileEntrys(Taking into account the "." and ".." file entries for each folder
-			fileEntries = new FileEntry[numOfFilesAndDirs + (directoriesCount * 2) + 2];
+			_fileEntries = new FileEntry[numOfFilesAndDirs + (directoriesCount * 2) + 2];
             Console.WriteLine("# fileEntries " + (numOfFilesAndDirs + (directoriesCount * 2) + 2));
 
-            filesData = new byte[filesCount][]; //Setup an array to store all the file data paths in
-			totalNumFilesAdded = 0; //How many file entries have been done
+            _filesData = new byte[filesCount][]; //Setup an array to store all the file data paths in
+			_totalNumFilesAdded = 0; //How many file entries have been done
 
 
-            CreateEntries(Root);
+            CreateEntries(root);
 
 
 			//Fill out the filename & data offsets for the folder entries with the offset from the appropriate Node
-			for (int n = 0; n < totalNumFilesAdded; n++)
+			for (int n = 0; n < _totalNumFilesAdded; n++)
 			{
-				if (fileEntries[n].filenameOffset == 0xFFFE)
+				if (_fileEntries[n].FilenameOffset == 0xFFFE)
 				{
 					uint nodeNum = 0;
-					foreach (Node node in nodes)
+					foreach (Node node in _nodes)
 					{
-						if (node.foldernameHash == fileEntries[n].filenameHash)
+						if (node.FoldernameHash == _fileEntries[n].FilenameHash)
 						{
-							fileEntries[n].filenameOffset = (ushort)node.filenameOffset;
-							fileEntries[n].dataOffset = nodeNum;
+							_fileEntries[n].FilenameOffset = (ushort)node.FilenameOffset;
+							_fileEntries[n].DataOffset = nodeNum;
 						}
 						nodeNum++;
 					}
@@ -261,30 +271,30 @@ namespace WWActorEdit.Kazari
 
 			//Make the data table a mutiple of 16
 			int numOfPaddingBytes = 0;
-			while ((lengthOfDataTable % 16) != 0)
+			while ((_lengthOfDataTable % 16) != 0)
 			{
-				lengthOfDataTable++;
+				_lengthOfDataTable++;
 				numOfPaddingBytes++;
 			}
 
 			//Fill out Header information
 			RarcHeader header = new RarcHeader();
-			header.type = "RARC";
-			header.numFiles1 = (uint)totalNumFilesAdded;
-			header.numFiles2 = (ushort)totalNumFilesAdded;
-			header.sizeOfDataTable1 = lengthOfDataTable;
-			header.sizeOfDataTable2 = lengthOfDataTable;
-			header.unknown1 = 0x20;
-			header.unknown6 = 0x20;
-			header.unknown8 = 0x100;
+			header.Magic = "RARC";
+			header.NumFiles1 = (uint)_totalNumFilesAdded;
+			header.NumFiles2 = (ushort)_totalNumFilesAdded;
+			header.SizeOfDataTable1 = _lengthOfDataTable;
+			header.SizeOfDataTable2 = _lengthOfDataTable;
+			header.Unknown1 = 0x20;
+			header.Unknown6 = 0x20;
+			header.Unknown8 = 0x100;
 
-			header.fileEntriesOffset = (numNodesDone * 16) + 0x20;
-			if ((header.fileEntriesOffset % 32) != 0)//Check if it's a multiple of 32 and make it one if it's not
-				header.fileEntriesOffset += 16;
+			header.FileEntriesOffset = (_numNodesDone * 16) + 0x20;
+			if ((header.FileEntriesOffset % 32) != 0)//Check if it's a multiple of 32 and make it one if it's not
+				header.FileEntriesOffset += 16;
 
-            Console.WriteLine("fileEntriesOffset is: " + header.fileEntriesOffset);
-            Console.WriteLine("totalNumFilesAdded: " + (totalNumFilesAdded+1));
-			header.numNodes = numNodesDone;
+            Console.WriteLine("fileEntriesOffset is: " + header.FileEntriesOffset);
+            Console.WriteLine("totalNumFilesAdded: " + (_totalNumFilesAdded+1));
+			header.NumNodes = _numNodesDone;
 
             int numFileEntries = (numOfFilesAndDirs + (directoriesCount * 2) + 2);
 
@@ -292,198 +302,198 @@ namespace WWActorEdit.Kazari
             while (0 != (((numFileEntries) * 20) + x) % 16)
 				x++;
 
-            header.stringTableOffset = header.fileEntriesOffset + (uint)((numFileEntries * 20) + x);
-			if ((header.stringTableOffset % 32) != 0)//Check if it's a multiple of 32 and make it one if it's not
-				header.stringTableOffset += 16;
+            header.StringTableOffset = header.FileEntriesOffset + (uint)((numFileEntries * 20) + x);
+			if ((header.StringTableOffset % 32) != 0)//Check if it's a multiple of 32 and make it one if it's not
+				header.StringTableOffset += 16;
 
-            Console.WriteLine("stringTableOffset is: " + header.stringTableOffset);
+            Console.WriteLine("stringTableOffset is: " + header.StringTableOffset);
 
-			while (0 != (stringTable.Length) % 16)//Pad out the string table so the data table starts at a 0based address
-				stringTable = stringTable + (char)0x00;
+			while (0 != (_stringTable.Length) % 16)//Pad out the string table so the data table starts at a 0based address
+				_stringTable = _stringTable + (char)0x00;
 
-			header.dataStartOffset = (uint)(header.stringTableOffset + stringTable.Length);
-			if ((header.dataStartOffset % 32) != 0)//Check if it's a multiple of 32 and make it one if it's not
-				header.dataStartOffset += 16;
+			header.DataStartOffset = (uint)(header.StringTableOffset + _stringTable.Length);
+			if ((header.DataStartOffset % 32) != 0)//Check if it's a multiple of 32 and make it one if it's not
+				header.DataStartOffset += 16;
 
-            Console.WriteLine("dataStartOffset is: " + header.dataStartOffset);
+            Console.WriteLine("dataStartOffset is: " + header.DataStartOffset);
 			
 
-            header.sizeOfStringTable = (uint)stringTable.Length;
-			header.size = lengthOfDataTable + header.dataStartOffset + 0x20;
+            header.SizeOfStringTable = (uint)_stringTable.Length;
+			header.Size = _lengthOfDataTable + header.DataStartOffset + 0x20;
 
 			//Let's write it out
 
             // Uncomment while testing
             //FullPath += ".new.arc";
 
-			FileStream filestreamWriter = new FileStream(FullPath, FileMode.Create);
+			FileStream filestreamWriter = new FileStream(fullPath, FileMode.Create);
 			BinaryWriter binWriter = new BinaryWriter(filestreamWriter);
 
-            Console.WriteLine("Writing to file: " + FullPath);
+            Console.WriteLine("Writing to file: " + fullPath);
             Console.WriteLine("Writing header...");
 			//First the Header is written
-			binWriter.Write(header.type[0]);
-			binWriter.Write(header.type[1]);
-			binWriter.Write(header.type[2]);
-			binWriter.Write(header.type[3]);
+			binWriter.Write(header.Magic[0]);
+			binWriter.Write(header.Magic[1]);
+			binWriter.Write(header.Magic[2]);
+			binWriter.Write(header.Magic[3]);
 
-			byte[] buffer = BitConverter.GetBytes(header.size);
+			byte[] buffer = BitConverter.GetBytes(header.Size);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.unknown1);
+			buffer = BitConverter.GetBytes(header.Unknown1);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.dataStartOffset);
+			buffer = BitConverter.GetBytes(header.DataStartOffset);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.sizeOfDataTable1);
+			buffer = BitConverter.GetBytes(header.SizeOfDataTable1);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.sizeOfDataTable2);
+			buffer = BitConverter.GetBytes(header.SizeOfDataTable2);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.unknown4);
+			buffer = BitConverter.GetBytes(header.Unknown4);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.unknown5);
+			buffer = BitConverter.GetBytes(header.Unknown5);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.numNodes);
+			buffer = BitConverter.GetBytes(header.NumNodes);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.unknown6);
+			buffer = BitConverter.GetBytes(header.Unknown6);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.numFiles1);
+			buffer = BitConverter.GetBytes(header.NumFiles1);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.fileEntriesOffset);
+			buffer = BitConverter.GetBytes(header.FileEntriesOffset);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
 
-			buffer = BitConverter.GetBytes(header.sizeOfStringTable);
+			buffer = BitConverter.GetBytes(header.SizeOfStringTable);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.stringTableOffset);
+			buffer = BitConverter.GetBytes(header.StringTableOffset);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.numFiles2);
+			buffer = BitConverter.GetBytes(header.NumFiles2);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.unknown8);
+			buffer = BitConverter.GetBytes(header.Unknown8);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
-			buffer = BitConverter.GetBytes(header.unknown9);
+			buffer = BitConverter.GetBytes(header.Unknown9);
 			Array.Reverse(buffer);
 			filestreamWriter.Write(buffer, 0, buffer.Length);
 
             Console.WriteLine("Writing nodes...");
 			//Write each of the nodes
-			foreach (Node currentNode in nodes)
+			foreach (Node currentNode in _nodes)
 			{
-                Console.WriteLine("Writing " + currentNode.type);
-				binWriter.Write(currentNode.type[0]);
-				if (currentNode.type.Length > 1)       //Incase the dirname is only 1 char long
-					binWriter.Write(currentNode.type[1]);
+                Console.WriteLine("Writing " + currentNode.Name);
+				binWriter.Write(currentNode.Name[0]);
+				if (currentNode.Name.Length > 1)       //Incase the dirname is only 1 char long
+					binWriter.Write(currentNode.Name[1]);
 				else
 					filestreamWriter.WriteByte(0x20);
-				if (currentNode.type.Length > 2)       //Incase the dirname is only 2 char long
-					binWriter.Write(currentNode.type[2]);
+				if (currentNode.Name.Length > 2)       //Incase the dirname is only 2 char long
+					binWriter.Write(currentNode.Name[2]);
 				else
 					filestreamWriter.WriteByte(0x20);
-				if (currentNode.type.Length == 4)       //Incase the dirname is only 3 char long
-					binWriter.Write(currentNode.type[3]);
+				if (currentNode.Name.Length == 4)       //Incase the dirname is only 3 char long
+					binWriter.Write(currentNode.Name[3]);
 				else
 					filestreamWriter.WriteByte(0x20);
 
-				buffer = BitConverter.GetBytes(currentNode.filenameOffset);
+				buffer = BitConverter.GetBytes(currentNode.FilenameOffset);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
-				buffer = BitConverter.GetBytes(currentNode.foldernameHash);
+				buffer = BitConverter.GetBytes(currentNode.FoldernameHash);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
-				buffer = BitConverter.GetBytes(currentNode.numFileEntries);
+				buffer = BitConverter.GetBytes(currentNode.NumFileEntries);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
-				buffer = BitConverter.GetBytes(currentNode.firstFileEntryOffset);
+				buffer = BitConverter.GetBytes(currentNode.FirstFileEntryOffset);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 			}
 
 			//Pad out the file to get the file entries at their correct offset
-			while (filestreamWriter.Position < (header.fileEntriesOffset + 32))
+			while (filestreamWriter.Position < (header.FileEntriesOffset + 32))
 			{
 				filestreamWriter.WriteByte(0x00);
 			}
 
 			//Write all the file entries
-			foreach (FileEntry entry in fileEntries)
+			foreach (FileEntry entry in _fileEntries)
 			{
-                Console.WriteLine(String.Format("Writing fileEntry {0:X6}",entry.filenameOffset));
+                Console.WriteLine(String.Format("Writing fileEntry {0:X6}",entry.FilenameOffset));
 
-				buffer = BitConverter.GetBytes(entry.id);
+				buffer = BitConverter.GetBytes(entry.Id);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 
-				buffer = BitConverter.GetBytes(entry.filenameHash);
+				buffer = BitConverter.GetBytes(entry.FilenameHash);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 
-				buffer = BitConverter.GetBytes(entry.unknown2);
+				buffer = BitConverter.GetBytes(entry.Unknown2);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 
-				buffer = BitConverter.GetBytes(entry.filenameOffset);
+				buffer = BitConverter.GetBytes(entry.FilenameOffset);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 
-				buffer = BitConverter.GetBytes(entry.dataOffset);
+				buffer = BitConverter.GetBytes(entry.DataOffset);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 
-				buffer = BitConverter.GetBytes(entry.dataSize);
+				buffer = BitConverter.GetBytes(entry.DataSize);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 
-				buffer = BitConverter.GetBytes(entry.zero);
+				buffer = BitConverter.GetBytes(entry.Zero);
 				Array.Reverse(buffer);
 				filestreamWriter.Write(buffer, 0, buffer.Length);
 			}
 
 			//Pad out the file to get the string table at its correct offset
 
-			while (filestreamWriter.Position < (header.stringTableOffset + 32))
+			while (filestreamWriter.Position < (header.StringTableOffset + 32))
 			{
                filestreamWriter.WriteByte(0x00);
 			}
 
 			//Write string table
 			Encoding enc = Encoding.UTF8;
-			binWriter.Write(enc.GetBytes(stringTable));
+			binWriter.Write(enc.GetBytes(_stringTable));
 
 			//Pad out the file to get the data table at its correct offset
-			while (filestreamWriter.Position < (header.dataStartOffset + 32))
+			while (filestreamWriter.Position < (header.DataStartOffset + 32))
 			{
 				filestreamWriter.WriteByte(0x00);
 			}
 
 			//Write files data
-			foreach (byte[] file in filesData)
+			foreach (byte[] file in _filesData)
 			{
                 Console.WriteLine("Dumping file data...");
                 buffer = file;
@@ -524,27 +534,27 @@ namespace WWActorEdit.Kazari
 			//Add in the "Dummy" folder entries
 			for (int i = 0; i < 2; i++)
 			{
-				fileEntries[totalNumFilesAdded].id = 0xFFFF;
-				fileEntries[totalNumFilesAdded].unknown2 = 0x0200;
+				_fileEntries[_totalNumFilesAdded].Id = 0xFFFF;
+				_fileEntries[_totalNumFilesAdded].Unknown2 = 0x0200;
 				if (i == 0)
 				{
-					fileEntries[totalNumFilesAdded].filenameOffset = 0;
-					fileEntries[totalNumFilesAdded].filenameHash = Hash(Convert.ToString(stringTable[0]));
-					fileEntries[totalNumFilesAdded].dataOffset = (uint)(numNodesDone - 1);
+					_fileEntries[_totalNumFilesAdded].FilenameOffset = 0;
+					_fileEntries[_totalNumFilesAdded].FilenameHash = Hash(Convert.ToString(_stringTable[0]));
+					_fileEntries[_totalNumFilesAdded].DataOffset = (uint)(_numNodesDone - 1);
 				}
 				else
 				{
-					fileEntries[totalNumFilesAdded].filenameOffset = 0x0002;
+					_fileEntries[_totalNumFilesAdded].FilenameOffset = 0x0002;
 					string name = "..";
-					fileEntries[totalNumFilesAdded].filenameHash = Hash(name);
-					if (numNodesDone == 1)
-						fileEntries[totalNumFilesAdded].dataOffset = 0xFFFFFFFF;
+					_fileEntries[_totalNumFilesAdded].FilenameHash = Hash(name);
+					if (_numNodesDone == 1)
+						_fileEntries[_totalNumFilesAdded].DataOffset = 0xFFFFFFFF;
 					else
-						fileEntries[totalNumFilesAdded].dataOffset = 0;
+						_fileEntries[_totalNumFilesAdded].DataOffset = 0;
 				}
-				fileEntries[totalNumFilesAdded].dataSize = 0x10;
+				_fileEntries[_totalNumFilesAdded].DataSize = 0x10;
 
-				totalNumFilesAdded++;
+				_totalNumFilesAdded++;
 			}
 		}
 
@@ -556,19 +566,19 @@ namespace WWActorEdit.Kazari
 			{
 				if (c == 4)
 					break;
-				nodes[numNodesDone].type = nodes[numNodesDone].type + dirName[c];
+				_nodes[_numNodesDone].Name = _nodes[_numNodesDone].Name + dirName[c];
 
 			}
-			nodes[numNodesDone].filenameOffset = (uint)stringTable.Length;
-			stringTable = stringTable + dirName.ToLower() + (char)0x00;
+			_nodes[_numNodesDone].FilenameOffset = (uint)_stringTable.Length;
+			_stringTable = _stringTable + dirName.ToLower() + (char)0x00;
 			string[] numFiles = Directory.GetFileSystemEntries(folder[0]);
-			nodes[numNodesDone].numFileEntries = (ushort)(numFiles.Length + 2);
-			nodes[numNodesDone].firstFileEntryOffset = (uint)totalNumFilesAdded;
+			_nodes[_numNodesDone].NumFileEntries = (ushort)(numFiles.Length + 2);
+			_nodes[_numNodesDone].FirstFileEntryOffset = (uint)_totalNumFilesAdded;
 
 			dirName = new FileInfo(folder[0]).Name;
-			nodes[numNodesDone].foldernameHash = Hash(dirName);
+			_nodes[_numNodesDone].FoldernameHash = Hash(dirName);
 
-			numNodesDone++;
+			_numNodesDone++;
 		}
 
 		static ushort Hash(string filename)
