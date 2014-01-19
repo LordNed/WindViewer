@@ -76,6 +76,7 @@ namespace WWActorEdit
                         case "FLOR": chunk = new FlorChunk(); break;
                         case "2DMA": chunk = new TwoDMAChunk(); break;
                         case "DMAP": chunk = new DMAPChunk(); break;
+                        case "LBNK": chunk = new LbnkChunk(); break;
                         default:
                             Console.WriteLine("Unsupported Chunk Tag: " + chunkHeader.Tag +
                                               " making DefaultChunk() instead!");
@@ -1263,6 +1264,32 @@ namespace WWActorEdit
                 // Do we need padding here?
                 stream.Seek(nextChunkOffset, SeekOrigin.Begin);
             }
+        }
+    }
+
+    /// <summary>
+    /// Presumed to stand for "Left BlaNK" it is typically all null values, except every
+    /// now and then when there's an odd byte mixed in.
+    /// </summary>
+    public class LbnkChunk : IChunkType
+    {
+        public uint A, B, C;
+
+        public void LoadData(byte[] data, ref int srcOffset)
+        {
+            //ToDo: Check the default values for ABC and then throw an assert if they don't match.
+            A = Helpers.Read32(data, srcOffset);
+            B = Helpers.Read32(data, srcOffset + 4);
+            C = Helpers.Read32(data, srcOffset + 8);
+
+            srcOffset += 12;
+        }
+
+        public void WriteData(BinaryWriter stream)
+        {
+            FSHelpers.Write32(stream, (int) A);
+            FSHelpers.Write32(stream, (int) B);
+            FSHelpers.Write32(stream, (int) C);
         }
     }
 

@@ -200,6 +200,7 @@ namespace WWActorEdit
       
                 }
 
+                // Collision
                 if (renderCollisionToolStripMenuItem.Checked)
                 {
                     foreach (ZArchive room in worldspaceProject.Rooms)
@@ -227,10 +228,6 @@ namespace WWActorEdit
                     if (Stage.DZSs != null) foreach (DZx D in Stage.DZSs) D.Render();
                 }
 
-                // Collision 
-                if (renderCollisionToolStripMenuItem.Checked == true)
-                    foreach (ZeldaArc A in Rooms) foreach (DZB D in A.DZBs) D.Render();
-
                 // Actors, 2nd pass 
                 if (renderRoomActorsToolStripMenuItem.Checked == true)
                 {
@@ -247,8 +244,6 @@ namespace WWActorEdit
                 }*/
 
             }
-
-            
 
             Helpers.Camera.KeyUpdate();
             glControl.SwapBuffers();
@@ -268,7 +263,7 @@ namespace WWActorEdit
 
             MessageBox.Show(
                 Application.ProductName + " - Upgraded in 2014 by LordNed" + Environment.NewLine + Environment.NewLine +
-                "Original written by xdaniel. Improvements by Pho, Abahbob and Sage of Mirrors." + Environment.NewLine +
+                "Original written by xDaniel. Improvements by Pho, Abahbob and Sage of Mirrors." + Environment.NewLine +
                 "RARC, Yaz0 and J3dx/BMD documentation by thakis, DZB, DZR, DZS documentation by" + Environment.NewLine +
                 "Sage of Mirrors, Twili, fkualol, xdaniel, etc. Built on the backs of those who came before us." +
             Environment.NewLine + Environment.NewLine + "[Build: " + buildDate.ToString(CultureInfo.InvariantCulture) + "]", "About",
