@@ -506,6 +506,120 @@ namespace WWActorEdit.Forms
             }
 
         }
+
+        private void ColorDropdownAdd_Click(object sender, EventArgs e)
+        {
+            ColoChunk coloChunk = new ColoChunk();
+            _data.AddChunk(coloChunk);
+
+            ColorDropdown.Items.Add("Colo [" + ColorDropdown.Items.Count + "]");
+            ColorDropdown.SelectedIndex = ColorDropdown.Items.Count - 1;
+        }
+
+        private void ColorDropdownDelete_Click(object sender, EventArgs e)
+        {
+            //Remove the chunk they currently have selected
+            _data.RemoveChunk(_coloChunk);
+
+            int prevSelectedIndex = ColorDropdown.SelectedIndex;
+
+            //Then rebuild the list from scratch so their displayed indexes update.
+            List<ColoChunk> coloChunks = _data.GetAllChunks<ColoChunk>();
+            ColorDropdown.Items.Clear();
+            for (int i = 0; i < coloChunks.Count; i++)
+                ColorDropdown.Items.Add("Colo [" + i + "]");
+
+            //Check if they deleted the last chunk
+            if (coloChunks.Count == 0)
+            {
+                ColorDropdown.SelectedIndex = -1;
+            }
+            else
+            {
+                //We're going to select the *next* chunk (which is actually the same index)
+                //unless they deleted the last item in the list at which point the index is 
+                //no longer valid.
+                ColorDropdown.SelectedIndex = (prevSelectedIndex >= ColorDropdown.Items.Count - 1)
+                    ? ColorDropdown.Items.Count - 1
+                    : prevSelectedIndex;
+            }
+        }
+
+        private void VirtDropdownAdd_Click(object sender, EventArgs e)
+        {
+            VirtChunk virtChunk = new VirtChunk();
+            _data.AddChunk(virtChunk);
+
+            VirtDropdown.Items.Add("Virt [" + VirtDropdown.Items.Count + "]");
+            VirtDropdown.SelectedIndex = VirtDropdown.Items.Count - 1;
+        }
+
+        private void VirtDropdownDelete_Click(object sender, EventArgs e)
+        {
+            //Remove the chunk they currently have selected
+            _data.RemoveChunk(_virtChunk);
+
+            int prevSelectedIndex = VirtDropdown.SelectedIndex;
+
+            //Then rebuild the list from scratch so their displayed indexes update.
+            List<VirtChunk> virtChunks = _data.GetAllChunks<VirtChunk>();
+            VirtDropdown.Items.Clear();
+            for (int i = 0; i < virtChunks.Count; i++)
+                VirtDropdown.Items.Add("Virt [" + i + "]");
+
+            //Check if they deleted the last chunk
+            if (virtChunks.Count == 0)
+            {
+                VirtDropdown.SelectedIndex = -1;
+            }
+            else
+            {
+                //We're going to select the *next* chunk (which is actually the same index)
+                //unless they deleted the last item in the list at which point the index is 
+                //no longer valid.
+                VirtDropdown.SelectedIndex = (prevSelectedIndex >= VirtDropdown.Items.Count - 1)
+                    ? VirtDropdown.Items.Count - 1
+                    : prevSelectedIndex;
+            }
+        }
+
+        private void PaleDropdownAdd_Click(object sender, EventArgs e)
+        {
+            PaleChunk paleChunk = new PaleChunk();
+            _data.AddChunk(paleChunk);
+
+            PaleDropdown.Items.Add("Pale [" + PaleDropdown.Items.Count + "]");
+            PaleDropdown.SelectedIndex = PaleDropdown.Items.Count - 1;
+        }
+
+        private void PaleDropdownDelete_Click(object sender, EventArgs e)
+        {
+            //Remove the chunk they currently have selected
+            _data.RemoveChunk(_paleChunk);
+
+            int prevSelectedIndex = PaleDropdown.SelectedIndex;
+
+            //Then rebuild the list from scratch so their displayed indexes update.
+            List<PaleChunk> paleChunks = _data.GetAllChunks<PaleChunk>();
+            PaleDropdown.Items.Clear();
+            for (int i = 0; i < paleChunks.Count; i++)
+                PaleDropdown.Items.Add("Pale [" + i + "]");
+
+            //Check if they deleted the last chunk
+            if (paleChunks.Count == 0)
+            {
+                PaleDropdown.SelectedIndex = -1;
+            }
+            else
+            {
+                //We're going to select the *next* chunk (which is actually the same index)
+                //unless they deleted the last item in the list at which point the index is 
+                //no longer valid.
+                PaleDropdown.SelectedIndex = (prevSelectedIndex >= PaleDropdown.Items.Count - 1)
+                    ? PaleDropdown.Items.Count - 1
+                    : prevSelectedIndex;
+            }
+        }
         
     }
 }

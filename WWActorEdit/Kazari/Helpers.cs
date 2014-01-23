@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -38,6 +39,11 @@ namespace WWActorEdit.Kazari
 
         public static uint Read32(byte[] Data, int Offset)
         {
+            if (Offset + 4 > Data.Length)
+            {
+                Console.WriteLine("WARNING: Read past end of data buffer!");
+                return 0;
+            }
             return (uint)((Buffer.GetByte(Data, Offset) << 24) | (Buffer.GetByte(Data, Offset + 1) << 16) | (Buffer.GetByte(Data, Offset + 2) << 8) | Buffer.GetByte(Data, Offset + 3));
         }
 

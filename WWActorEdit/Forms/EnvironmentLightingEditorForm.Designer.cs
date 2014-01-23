@@ -185,6 +185,7 @@
             this.VirtDropdownDelete.TabIndex = 40;
             this.VirtDropdownDelete.Text = "Delete";
             this.VirtDropdownDelete.UseVisualStyleBackColor = true;
+            this.VirtDropdownDelete.Click += new System.EventHandler(this.VirtDropdownDelete_Click);
             // 
             // VirtDropdownAdd
             // 
@@ -194,6 +195,7 @@
             this.VirtDropdownAdd.TabIndex = 39;
             this.VirtDropdownAdd.Text = "Add";
             this.VirtDropdownAdd.UseVisualStyleBackColor = true;
+            this.VirtDropdownAdd.Click += new System.EventHandler(this.VirtDropdownAdd_Click);
             // 
             // VirtUnknown2Index
             // 
@@ -653,6 +655,7 @@
             this.PaleDropdownDelete.TabIndex = 17;
             this.PaleDropdownDelete.Text = "Delete";
             this.PaleDropdownDelete.UseVisualStyleBackColor = true;
+            this.PaleDropdownDelete.Click += new System.EventHandler(this.PaleDropdownDelete_Click);
             // 
             // label15
             // 
@@ -671,6 +674,7 @@
             this.PaleDropdownAdd.TabIndex = 16;
             this.PaleDropdownAdd.Text = "Add";
             this.PaleDropdownAdd.UseVisualStyleBackColor = true;
+            this.PaleDropdownAdd.Click += new System.EventHandler(this.PaleDropdownAdd_Click);
             // 
             // PaleActorAmbientColor
             // 
@@ -779,6 +783,7 @@
             this.ColorDropdownDelete.TabIndex = 8;
             this.ColorDropdownDelete.Text = "Delete";
             this.ColorDropdownDelete.UseVisualStyleBackColor = true;
+            this.ColorDropdownDelete.Click += new System.EventHandler(this.ColorDropdownDelete_Click);
             // 
             // ColorDropdownAdd
             // 
@@ -788,6 +793,7 @@
             this.ColorDropdownAdd.TabIndex = 7;
             this.ColorDropdownAdd.Text = "Add";
             this.ColorDropdownAdd.UseVisualStyleBackColor = true;
+            this.ColorDropdownAdd.Click += new System.EventHandler(this.ColorDropdownAdd_Click);
             // 
             // ColorDropdown
             // 
