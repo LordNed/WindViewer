@@ -51,6 +51,17 @@ namespace WWActorEdit.Forms
             PaleDropdown.Items.Clear();
             VirtDropdown.Items.Clear();
 
+            ResetEnvrGroupBox();
+            ResetColoGroupBox();
+            ResetPaleGroupBox();
+            ResetVirtGroupBox();
+
+            _envrChunk = null;
+            _coloChunk = null;
+            _paleChunk = null;
+            _virtChunk = null;
+            _data = null;
+
             //First we're going to grab the chunks, populate the dropdowns if they exist.
             List<EnvRChunk> envrChunks = entFile.GetAllChunks<EnvRChunk>();
             for (int i = 0; i < envrChunks.Count; i++)
@@ -95,6 +106,14 @@ namespace WWActorEdit.Forms
             }
         }
 
+        private void ResetEnvrGroupBox()
+        {
+            EnvRClearSkiesIndex.Value = 0;
+            EnvRRainingIndex.Value = 0;
+            EnvRSnowingIndex.Value = 0;
+            EnvRUnknownIndex.Value = 0;
+        }
+
         /// <summary>
         /// This will update all of the values within the Color GroupBox to point to whatever the
         /// //current _coloChunk's values are.
@@ -107,6 +126,16 @@ namespace WWActorEdit.Forms
             ColoAfternoonIndex.Value = _coloChunk.AfternoonIndex;
             ColoDuskIndex.Value = _coloChunk.DuskIndex;
             ColoNightIndex.Value = _coloChunk.NightIndex;
+        }
+
+        private void ResetColoGroupBox()
+        {
+            ColoDawnIndex.Value = 0;
+            ColoMorningIndex.Value = 0;
+            ColoNoonIndex.Value = 0;
+            ColoAfternoonIndex.Value = 0;
+            ColoDuskIndex.Value = 0;
+            ColoNightIndex.Value = 0;
         }
 
         /// <summary>
@@ -135,6 +164,28 @@ namespace WWActorEdit.Forms
             PaleShoreFadeAlpha.Value = _paleChunk.ShoreFadeInto.A;
         }
 
+        private void ResetPaleGroupBox()
+        {
+            PaleActorAmbientColor.BackColor = SystemColors.ActiveCaption;
+            PaleShadowColor.BackColor = SystemColors.ActiveCaption;
+            PaleRoomFillColor.BackColor = SystemColors.ActiveCaption;
+            PaleRoomAmbientColor.BackColor = SystemColors.ActiveCaption;
+            PaleWaveColor.BackColor = SystemColors.ActiveCaption;
+            PaleOceanColor.BackColor = SystemColors.ActiveCaption;
+            PaleUnknown1Color.BackColor = SystemColors.ActiveCaption;
+            PaleUnknown2Color.BackColor = SystemColors.ActiveCaption;
+            PaleDoorwayColor.BackColor = SystemColors.ActiveCaption;
+            PaleUnknown3Color.BackColor = SystemColors.ActiveCaption;
+            PaleFogColor.BackColor = SystemColors.ActiveCaption;
+
+            PaleVirtIndex.Value = 0;
+            PaleOceanFadeIntoColor.BackColor = SystemColors.ActiveCaption;
+            PaleOceanFadeAlpha.Value = 0;
+
+            PaleShoreFadeIntoColor.BackColor = SystemColors.ActiveCaption;
+            PaleShoreFadeAlpha.Value = 0;
+        }
+
         private void UpdateVirtGroupBox()
         {
             VirtHorizonCloudColor.BackColor = SetPaleColorBoxColor(_virtChunk.HorizonCloudColor);
@@ -146,6 +197,19 @@ namespace WWActorEdit.Forms
             VirtCenterSkyColor.BackColor = SetPaleColorBoxColor(_virtChunk.CenterSkyColor);
             VirtHorizonColor.BackColor = SetPaleColorBoxColor(_virtChunk.HorizonColor);
             VirtSkyFadeToColor.BackColor = SetPaleColorBoxColor(_virtChunk.SkyFadeTo);
+        }
+
+        private void ResetVirtGroupBox()
+        {
+            VirtHorizonCloudColor.BackColor = SystemColors.ActiveCaption;
+            VirtUnknown1Index.Value = 0;
+
+            VirtCenterCloudColor.BackColor = SystemColors.ActiveCaption;
+            VirtUnknown2Index.Value = 0;
+
+            VirtCenterSkyColor.BackColor = SystemColors.ActiveCaption;
+            VirtHorizonColor.BackColor = SystemColors.ActiveCaption;
+            VirtSkyFadeToColor.BackColor = SystemColors.ActiveCaption;
         }
 
         /// <summary>
