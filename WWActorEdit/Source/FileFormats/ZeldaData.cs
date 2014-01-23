@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using OpenTK;
 using WWActorEdit.Kazari;
 using WWActorEdit.Source;
+using WWActorEdit.Source.Util;
 
 namespace WWActorEdit
 {
@@ -52,7 +53,7 @@ namespace WWActorEdit
                             chunk = new RPATChunk(); break;
                         case "RPPN":
                         case "PPNT":
-                            chunk = new RPATChunk(); break;
+                            chunk = new RppnChunk(); break;
 
                         case "SOND": chunk = new SondChunk(); break;
                         case "FILI": chunk = new FiliChunk(); break;
@@ -72,11 +73,14 @@ namespace WWActorEdit
                         case "STAG": chunk = new StagChunk(); break;
                         case "RCAM":
                         case "CAMR":
-                            chunk = new RcamChunk();break;
+                            chunk = new RcamChunk(); break;
                         case "FLOR": chunk = new FlorChunk(); break;
-                        case "2DMA": chunk = new TwoDMAChunk(); break;
+                        case "TWOD":
+                        case "2DMA":
+                            chunk = new TwoDMAChunk(); break;
                         case "DMAP": chunk = new DMAPChunk(); break;
                         case "LBNK": chunk = new LbnkChunk(); break;
+                        case "SCOB": chunk = new ScobChunk(); break;
                         default:
                             Console.WriteLine("Unsupported Chunk Tag: " + chunkHeader.Tag +
                                               " making DefaultChunk() instead!");
@@ -312,6 +316,7 @@ namespace WWActorEdit
     /// The EnvR (short for Environment) chunk contains indexes of different color pallets
     ///  to use in different weather situations. 
     /// </summary>
+    [ChunkName("ENVR", "Environment")]
     public class EnvRChunk : IChunkType
     {
         public byte ClearColorIndexA; //Index of the Color entry to use for clear weather.
@@ -363,6 +368,7 @@ namespace WWActorEdit
     /// Colo (short for Color) contains indexes into the Pale section. Color specifies
     /// which color to use for the different times of day.
     /// </summary>
+    [ChunkName("COLO", "Color")]
     public class ColoChunk : IChunkType
     {
         public byte DawnIndex; //Index of the Pale entry to use for Dawn
@@ -404,6 +410,7 @@ namespace WWActorEdit
     /// The Pale (short for Palette) chunk contains the actual RGB colors for different
     /// types of lighting. 
     /// </summary>
+    [ChunkName("PALE", "Palette")]
     public class PaleChunk : IChunkType
     {
         public ByteColor ActorAmbient;
@@ -490,6 +497,7 @@ namespace WWActorEdit
     /// The Virt (short for uh.. Virtual? I dunno) chunk contains color data for the skybox. Indexed by a Pale
     /// chunk.
     /// </summary>
+    [ChunkName("VIRT", "Skybox Lighting")]
     public class VirtChunk : IChunkType
     {
         public ByteColorAlpha HorizonCloudColor; //The Horizon
@@ -545,6 +553,7 @@ namespace WWActorEdit
     /// The SCLS Chunk defines information about exits on a map. It is pointed to by
     /// the maps collision data (which supplies the actual positions)
     /// </summary>
+    [ChunkName("SCLS", "Exits")]
     public class SclsChunk : IChunkType
     {
         public string DestinationName;
@@ -578,6 +587,7 @@ namespace WWActorEdit
     /// <summary>
     /// The Plyr (Player) chunk defines spawn points for Link.
     /// </summary>
+    [ChunkName("PLYR", "Player Spawn(s)")]
     public class PlyrChunk : IChunkType
     {
         public string Name; //"Link"
@@ -629,6 +639,7 @@ namespace WWActorEdit
     ///RPAT and Path are two chunks that put RPPN and PPNT chunk entries into groups.
     ///RPAT and RPPN are found in DZR files, while Path and PPNT are found in DZS files.
     ///</summary>
+    [ChunkName("RPAT", "Paths")]
     public class RPATChunk : IChunkType
     {
         public ushort NumPoints;
@@ -671,6 +682,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("SOND", "Sound")]
     public class SondChunk : IChunkType
     {
         public string Name; //Seems to always be "sndpath"
@@ -718,7 +730,8 @@ namespace WWActorEdit
             FSHelpers.Write8(stream, Padding4);
         }   
     }
-
+    
+    [ChunkName("FLOR", "Dungeon Floors")]
     public class FlorChunk : IChunkType
     {
         public float LowerBoundaryYCoord; //Y value of the lower boundary of a floor. When link crosses the coord, the map switches him to being on that floor.
@@ -746,6 +759,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("FILI", "Misc.")]
     public class FiliChunk : IChunkType
     {
         public byte TimePassage;
@@ -775,6 +789,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("RCAM", "Camera Usage")]
     public class RcamChunk : IChunkType
     {
         public string CameraType;
@@ -796,6 +811,7 @@ namespace WWActorEdit
         } 
     }
 
+    [ChunkName("MECO", "Memory O")]
     public class MecoChunk : IChunkType
     {
         public byte RoomNumber; //Which room number this applies to
@@ -817,6 +833,7 @@ namespace WWActorEdit
 
     }
 
+    [ChunkName("MEMA", "Memory A")]
     public class MemaChunk : IChunkType
     {
         public uint MemSize; //Amount of memory to allocate for a room.
@@ -833,6 +850,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("TRES", "Treasure Chests (Non-Ocean)")]
     public class TresChunk : IChunkType
     {
         public string Name; //Usually Takara, 8 bytes + null terminator.
@@ -870,6 +888,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("SHIP", "Ship Spawn Point")]
     public class ShipChunk : IChunkType
     {
         public Vector3 Position;
@@ -896,7 +915,7 @@ namespace WWActorEdit
         }
     }
 
-
+    [ChunkName("RPPN", "Path Waypoint")]
     public class RppnChunk : IChunkType
     {
         public uint Unknown;
@@ -922,6 +941,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("MULT", "Room Position")]
     public class MultChunk : IChunkType
     {
         public float TranslationX;
@@ -952,6 +972,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("LGHT", "Interior Light Source")]
     public class LghtChunk : IChunkType
     {
         public Vector3 Position;
@@ -986,6 +1007,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("RARO", "Camera Ref Data")]
     public class RaroChunk : IChunkType
     {
         public Vector3 Position;
@@ -1015,6 +1037,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("EVNT", "Event")]
     public class EvntChunk : IChunkType
     {
         public byte Unknown;
@@ -1061,6 +1084,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("ACTR", "Actor")]
     public class ActrChunk : IChunkType
     {
         public string Name;
@@ -1113,6 +1137,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("STAG", "Stage")]
     public class StagChunk : IChunkType
     {
         public float MinDepth;
@@ -1160,6 +1185,7 @@ namespace WWActorEdit
     /// <summary>
     /// 2DMA holds the settings for the map display in the bottom left-hand corner of the screen.
     /// </summary>
+    [ChunkName("2DMA", "Minimap")]
     public class TwoDMAChunk : IChunkType
     {
         public float FullMapImageScaleX;
@@ -1225,6 +1251,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("DMAP", "Dungeon Map")]
     public class DMAPChunk : IChunkType
     {
         public float MapSpaceX;
@@ -1251,6 +1278,7 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("RTBL", "Room Table")]
     public class RTBLChunk : IChunkType
     {
         public byte Unknown1;
@@ -1303,6 +1331,7 @@ namespace WWActorEdit
     /// Presumed to stand for "Left BlaNK" it is typically all null values, except every
     /// now and then when there's an odd byte mixed in.
     /// </summary>
+    [ChunkName("LBNK", "Blank")]
     public class LbnkChunk : IChunkType
     {
         public byte Data;
@@ -1319,7 +1348,66 @@ namespace WWActorEdit
             FSHelpers.Write8(stream, Data);
         }
     }
+    [ChunkName("SCOB", "Scaleable Objects")]
+    public class ScobChunk : IChunkType
+    {
+        public string ObjectName; //Always 8 bytes
+        public byte Param0;
+        public byte Param1;
+        public byte Param2;
+        public byte Param3; //Params are context-sensitive. They differ between objects.
+        public Vector3 Position;
+        public ushort AuxilaryParam; //Only objects that call up text use this, contains TextID
+        public HalfRotationSingle YRotation;
+        public ushort Unknown1;
+        public ushort Unknown2; //May be padding? Always seems to be FF FF
+        public byte ScaleX;
+        public byte ScaleY;
+        public byte ScaleZ;
+        public byte Padding;
 
+        public void LoadData(byte[] data, ref int srcOffset)
+        {
+            ObjectName = Helpers.ReadString(data, srcOffset, 8);
+            Param0 = Helpers.Read8(data, srcOffset + 8);
+            Param1 = Helpers.Read8(data, srcOffset + 9);
+            Param2 = Helpers.Read8(data, srcOffset + 10);
+            Param3 = Helpers.Read8(data, srcOffset + 11);
+            Position.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset+12));
+            Position.Y = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset+16));
+            Position.Z = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset+20));
+            AuxilaryParam = Helpers.Read16(data, srcOffset + 24);
+            YRotation = new HalfRotationSingle(data, srcOffset + 26);
+            Unknown1 = Helpers.Read16(data, srcOffset + 28);
+            Unknown2 = Helpers.Read16(data, srcOffset + 30);
+            ScaleX = Helpers.Read8(data, srcOffset + 32);
+            ScaleY = Helpers.Read8(data, srcOffset + 33);
+            ScaleZ = Helpers.Read8(data, srcOffset + 34);
+            Padding = Helpers.Read8(data, srcOffset + 35);
+
+            srcOffset += 36;
+        }
+
+        public void WriteData(BinaryWriter stream)
+        {
+            FSHelpers.WriteString(stream, ObjectName, 8);
+            FSHelpers.Write8(stream, Param0);
+            FSHelpers.Write8(stream, Param1);
+            FSHelpers.Write8(stream, Param2);
+            FSHelpers.Write8(stream, Param3);
+            FSHelpers.WriteFloat(stream, Position.X);
+            FSHelpers.WriteFloat(stream, Position.Y);
+            FSHelpers.WriteFloat(stream, Position.Z);
+            FSHelpers.Write16(stream, AuxilaryParam);
+            FSHelpers.Write16(stream, YRotation.Value);
+            FSHelpers.Write16(stream, Unknown1);
+            FSHelpers.Write16(stream, Unknown2);
+            FSHelpers.Write8(stream, ScaleX);
+            FSHelpers.Write8(stream, ScaleY);
+            FSHelpers.Write8(stream, ScaleZ);
+            FSHelpers.Write8(stream, Padding);
+        }
+    }
     #endregion
 
     public class HalfRotation
@@ -1355,6 +1443,31 @@ namespace WWActorEdit
             X = (short) (rot.X*182.04444444444f);
             Y = (short) (rot.Y*182.04444444444f);
             Z = (short) (rot.Z*182.04444444444f);
+        }
+    }
+
+    public class HalfRotationSingle
+    {
+        public ushort Value;
+
+        public HalfRotationSingle()
+        {
+            Value = 0;
+        }
+
+        public HalfRotationSingle(byte[] data, int srcOffset)
+        {
+            Value = Helpers.Read16(data, srcOffset);
+        }
+
+        public float ToDegrees()
+        {
+            return Value / 182.04444444444f;
+        }
+
+        public void SetDegrees(float rot)
+        {
+            Value = (ushort) (rot*182.04444444444f);
         }
     }
 
