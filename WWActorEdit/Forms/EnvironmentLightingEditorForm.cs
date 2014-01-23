@@ -34,6 +34,10 @@ namespace WWActorEdit.Forms
         //Used for "dockable" WinForms
         private StickyWindow _stickyWindow;
 
+        //Have any of the controls been changed since the last time the user hit save?
+        private bool _unsavedChanges;
+        private string _titleText; //Cache of the window Title so we can append a * after it.
+
         public EnvironmentLightingEditorForm(MainForm parent)
         {
             InitializeComponent();
@@ -49,8 +53,12 @@ namespace WWActorEdit.Forms
             //a reference to that here in the editor. This allows us to have a "Save"
             //and "Cancel" button - "Save" will remove all the old EnvR/Colo/Pale/etc.
             //chunks from the DZS/DZR and replace it with ours, while "Cancel" will just
-            //discard the changes and not modify the original selected DZS/DZR.
+            //discard the changes and not modify the original selected DZS/DZR. Before we
+            //do a deep copy we need to save the old reference to the ZArchive and restore
+            //it after the copy so we don't copy that.
+            ZArchive oldParentRef = entFile.ParentArchive;
             _data = entFile.Copy();
+            _data.ParentArchive = oldParentRef;
 
             //Clear the old dropdowns.
             EnvRDropdown.Items.Clear();
@@ -225,10 +233,18 @@ namespace WWActorEdit.Forms
         {
             MainForm.SelectedEntityDataFileChanged += OnSelectedEntityFileChanged;
 
+            //Cache the window title so we can append a * after it to indicate changes.
+            _titleText = this.Text;
+
             //If there is already a map loaded when the editor opens then this will be set.
             ZeldaData entData = MainForm.SelectedData;
             if (entData != null)
                 OnSelectedEntityFileChanged(entData);
+
+            //Loading the file of course triggers all of the *_Changed event handlers which marks
+            //the data as changed. Since we know it hasn't changed during loading (at least I hope
+            //not...) then we'll just cheat by re-marking it as unchanged.
+            MarkDataSaved();
         }
 
         /// <summary>
@@ -290,6 +306,8 @@ namespace WWActorEdit.Forms
         /// <param name="e"></param>
         private void PaleColorField_Click(object sender, EventArgs e)
         {
+            MarkDataChanged();
+
             //Set the color in the Color Picker to what it currently is
             //And then pause the app till we get a new color.
             PictureBox outputBox = (PictureBox) sender;
@@ -338,6 +356,8 @@ namespace WWActorEdit.Forms
 
         private void VirtColorField_Click(object sender, EventArgs e)
         {
+            MarkDataChanged();
+
             PictureBox outputBox = (PictureBox)sender;
 
             colorPickerDialog.Color = outputBox.BackColor;
@@ -394,6 +414,8 @@ namespace WWActorEdit.Forms
         /// </summary>
         private void EnvRGroupBoxIndex_ValueChanged(object sender, EventArgs e)
         {
+            MarkDataChanged();
+
             //Going to just copy all of their values back into the _envRChunk,
             //because I haven't come up with a better way yet!
             //If they have Type A selected we populate the same UI elements but with different data...
@@ -426,6 +448,8 @@ namespace WWActorEdit.Forms
         /// </summary>
         private void PaleIndex_ValueChanged(object sender, EventArgs e)
         {
+            MarkDataChanged();
+
             if(sender == PaleVirtIndex)
                 _paleChunk.VirtIndex = (byte) PaleVirtIndex.Value;
             if (sender == PaleOceanFadeAlpha)
@@ -439,6 +463,8 @@ namespace WWActorEdit.Forms
         /// </summary>
         private void VirtUnknownIndex_ValueChanged(object sender, EventArgs e)
         {
+            MarkDataChanged();
+
             if(sender == VirtUnknown1Index)
                 _virtChunk.HorizonCloudColor.A = (byte) VirtUnknown1Index.Value;
             if(sender == VirtUnknown2Index)
@@ -450,6 +476,8 @@ namespace WWActorEdit.Forms
         /// </summary>
         private void ColoGroupBoxIndex_ValueChanged(object sender, EventArgs e)
         {
+            MarkDataChanged();
+
             if(sender == ColoDawnIndex)
                 _coloChunk.DawnIndex = (byte) ColoDawnIndex.Value;
             if(sender == ColoMorningIndex)
@@ -474,8 +502,6 @@ namespace WWActorEdit.Forms
             actualData.RemoveAllChunksOfType<ColoChunk>();
             actualData.RemoveAllChunksOfType<VirtChunk>();
 
-            //ToDo: This probably did a deep-copy of the parent archive too which we don't want!
-            
             //Now we're going to add all of our data to the actual data.
             foreach (EnvRChunk envr in _data.GetAllChunks<EnvRChunk>())
                 actualData.AddChunk(envr);
@@ -488,10 +514,20 @@ namespace WWActorEdit.Forms
 
             foreach (VirtChunk virt in _data.GetAllChunks<VirtChunk>())
                 actualData.AddChunk(virt);
+
+            MarkDataSaved();
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
         {
+            if (_unsavedChanges)
+            {
+                DialogResult saveChanges = MessageBox.Show("Would you like to save your changes?", "Save Changes",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (saveChanges == DialogResult.OK)
+                    saveButton_Click(this, null);
+            }
+
             Close();
         }
 
@@ -521,6 +557,7 @@ namespace WWActorEdit.Forms
             if (envrChunks.Count == 0)
             {
                 EnvRDropdown.SelectedIndex = -1;
+                ResetEnvrGroupBox();
             }
             else
             {
@@ -560,6 +597,7 @@ namespace WWActorEdit.Forms
             if (coloChunks.Count == 0)
             {
                 ColorDropdown.SelectedIndex = -1;
+                ResetColoGroupBox();
             }
             else
             {
@@ -598,6 +636,7 @@ namespace WWActorEdit.Forms
             if (virtChunks.Count == 0)
             {
                 VirtDropdown.SelectedIndex = -1;
+                ResetVirtGroupBox();
             }
             else
             {
@@ -636,6 +675,7 @@ namespace WWActorEdit.Forms
             if (paleChunks.Count == 0)
             {
                 PaleDropdown.SelectedIndex = -1;
+                ResetPaleGroupBox();
             }
             else
             {
@@ -646,6 +686,18 @@ namespace WWActorEdit.Forms
                     ? PaleDropdown.Items.Count - 1
                     : prevSelectedIndex;
             }
+        }
+
+        private void MarkDataChanged()
+        {
+            this.Text = _titleText + "*";
+            _unsavedChanges = true;
+        }
+
+        private void MarkDataSaved()
+        {
+            this.Text = _titleText;
+            _unsavedChanges = false;
         }
         
     }
