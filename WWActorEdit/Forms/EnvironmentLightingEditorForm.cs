@@ -45,6 +45,13 @@ namespace WWActorEdit.Forms
 
         private void OnSelectedEntityFileChanged(ZeldaData entFile)
         {
+            //We're going to perform a deep copy of the selected DZS/DZR and keep
+            //a reference to that here in the editor. This allows us to have a "Save"
+            //and "Cancel" button - "Save" will remove all the old EnvR/Colo/Pale/etc.
+            //chunks from the DZS/DZR and replace it with ours, while "Cancel" will just
+            //discard the changes and not modify the original selected DZS/DZR.
+            _data = entFile.Copy();
+
             //Clear the old dropdowns.
             EnvRDropdown.Items.Clear();
             ColorDropdown.Items.Clear();
@@ -60,23 +67,21 @@ namespace WWActorEdit.Forms
             _coloChunk = null;
             _paleChunk = null;
             _virtChunk = null;
-            _data = null;
 
             //First we're going to grab the chunks, populate the dropdowns if they exist.
-            List<EnvRChunk> envrChunks = entFile.GetAllChunks<EnvRChunk>();
+            List<EnvRChunk> envrChunks = _data.GetAllChunks<EnvRChunk>();
             for (int i = 0; i < envrChunks.Count; i++)
                 EnvRDropdown.Items.Add("EnvR [" + i + "]");
-            List<ColoChunk> coloChunks = entFile.GetAllChunks<ColoChunk>();
+            List<ColoChunk> coloChunks = _data.GetAllChunks<ColoChunk>();
             for (int i = 0; i < coloChunks.Count; i++)
                 ColorDropdown.Items.Add("Colo [" + i + "]");
-            List<PaleChunk> paleChunks = entFile.GetAllChunks<PaleChunk>();
+            List<PaleChunk> paleChunks = _data.GetAllChunks<PaleChunk>();
             for (int i = 0; i < paleChunks.Count; i++)
                 PaleDropdown.Items.Add("Pale [" + i + "]");
-            List<VirtChunk> virtChunks = entFile.GetAllChunks<VirtChunk>();
+            List<VirtChunk> virtChunks = _data.GetAllChunks<VirtChunk>();
             for (int i = 0; i < virtChunks.Count; i++)
                 VirtDropdown.Items.Add("Virt [" + i + "]");
 
-            _data = entFile;
             EnvRDropdown.SelectedIndex = envrChunks.Count > 0 ? 0 : -1;
             ColorDropdown.SelectedIndex = coloChunks.Count > 0 ? 0 : -1;
             PaleDropdown.SelectedIndex = paleChunks.Count > 0 ? 0 : -1;
@@ -461,6 +466,28 @@ namespace WWActorEdit.Forms
 
         private void saveButton_Click(object sender, EventArgs e)
         {
+            //We only want to save the changes made to the EnvR, Colo, Pale, and Virt chunks.
+            //We're going to remove those chunks and add our modified ones instead.
+            ZeldaData actualData = _data.ParentArchive.GetFileByType<ZeldaData>();
+            actualData.RemoveAllChunksOfType<EnvRChunk>();
+            actualData.RemoveAllChunksOfType<PaleChunk>();
+            actualData.RemoveAllChunksOfType<ColoChunk>();
+            actualData.RemoveAllChunksOfType<VirtChunk>();
+
+            //ToDo: This probably did a deep-copy of the parent archive too which we don't want!
+            
+            //Now we're going to add all of our data to the actual data.
+            foreach (EnvRChunk envr in _data.GetAllChunks<EnvRChunk>())
+                actualData.AddChunk(envr);
+
+            foreach (PaleChunk pale in _data.GetAllChunks<PaleChunk>())
+                actualData.AddChunk(pale);
+
+            foreach (ColoChunk colo in _data.GetAllChunks<ColoChunk>())
+                actualData.AddChunk(colo);
+
+            foreach (VirtChunk virt in _data.GetAllChunks<VirtChunk>())
+                actualData.AddChunk(virt);
         }
 
         private void cancelButton_Click(object sender, EventArgs e)

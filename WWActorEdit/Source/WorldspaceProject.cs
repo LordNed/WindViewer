@@ -162,6 +162,9 @@ namespace WWActorEdit.Source
         //What the file name was (room.dzb, etc.)
         public string FileName;
 
+        //Reference to the parent ZArchive that this file belongs to
+        public ZArchive ParentArchive;
+
 
         public abstract void Load(byte[] data);
         public abstract void Save(BinaryWriter stream);
@@ -245,8 +248,8 @@ namespace WWActorEdit.Source
                 foreach (string filePath in subFiles)
                 {
                     BinaryReader br = new BinaryReader(File.OpenRead(filePath));
-                    //try
-                    //{
+                    try
+                    {
                         BaseArchiveFile file;
 
                         byte[] fileData = br.ReadBytes((int) br.BaseStream.Length);
@@ -288,16 +291,17 @@ namespace WWActorEdit.Source
                         file.Load(fileData);
                         file.FileName = Path.GetFileName(filePath);
                         file.FolderName = new DirectoryInfo(folder).Name;
+                        file.ParentArchive = this;
 
                         //Now that we've created the appropriate file (and hopefully mapped them all out!) we'll just stick
                         //it in our list of loaded files. They can later be gotten with the templated getter!
                         _archiveFiles.Add(file);
                         br.Close();
-                    //}
-                    //catch (Exception ex)
-                    //{
-                        //Console.WriteLine("Error opening file " + filePath + " for reading. Error Message: " + ex);
-                    //}
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error opening file " + filePath + " for reading. Error Message: " + ex);
+                    }
                 }
             }
         }

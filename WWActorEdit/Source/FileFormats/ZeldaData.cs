@@ -221,6 +221,18 @@ namespace WWActorEdit
 
         }
 
+        public void RemoveAllChunksOfType<T>()
+        {
+            List<IChunkType> chunksToRemove = new List<IChunkType>();
+            foreach (IChunkType chunk in _chunkList)
+            {
+                if (chunk is T)
+                    chunksToRemove.Add(chunk);
+            }
+
+            foreach (IChunkType chunk in chunksToRemove)
+                _chunkList.Remove(chunk);
+        }
     }
 
     public class DZSHeader
