@@ -177,6 +177,9 @@ namespace WWActorEdit.Forms
         /// </summary>
         private void EnvRDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (EnvRDropdown.SelectedIndex < 0)
+                return;
+
             _envrChunk = _data.GetAllChunks<EnvRChunk>()[EnvRDropdown.SelectedIndex];
             UpdateEnvrGroupBox();
         }
@@ -186,18 +189,27 @@ namespace WWActorEdit.Forms
         /// </summary>
         private void ColorDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (ColorDropdown.SelectedIndex < 0)
+                return;
+
             _coloChunk = _data.GetAllChunks<ColoChunk>()[ColorDropdown.SelectedIndex];
             UpdateColoGroupBox();
         }
 
         private void PaleDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (PaleDropdown.SelectedIndex < 0)
+                return;
+
             _paleChunk = _data.GetAllChunks<PaleChunk>()[PaleDropdown.SelectedIndex];
             UpdatePaleGroupBox();
         }
 
         private void VirtDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (VirtDropdown.SelectedIndex < 0)
+                return;
+
             _virtChunk = _data.GetAllChunks<VirtChunk>()[VirtDropdown.SelectedIndex];
             UpdateVirtGroupBox();
         }

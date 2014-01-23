@@ -212,6 +212,7 @@
             // 
             // VirtDropdown
             // 
+            this.VirtDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.VirtDropdown.FormattingEnabled = true;
             this.VirtDropdown.Location = new System.Drawing.Point(6, 20);
             this.VirtDropdown.Name = "VirtDropdown";
@@ -687,6 +688,7 @@
             // 
             // PaleDropdown
             // 
+            this.PaleDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.PaleDropdown.FormattingEnabled = true;
             this.PaleDropdown.Location = new System.Drawing.Point(6, 20);
             this.PaleDropdown.Name = "PaleDropdown";
@@ -795,6 +797,7 @@
             // 
             // ColorDropdown
             // 
+            this.ColorDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ColorDropdown.FormattingEnabled = true;
             this.ColorDropdown.Location = new System.Drawing.Point(6, 19);
             this.ColorDropdown.Name = "ColorDropdown";
@@ -949,6 +952,7 @@
             // 
             // EnvRDropdown
             // 
+            this.EnvRDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.EnvRDropdown.FormattingEnabled = true;
             this.EnvRDropdown.Location = new System.Drawing.Point(6, 17);
             this.EnvRDropdown.Name = "EnvRDropdown";
