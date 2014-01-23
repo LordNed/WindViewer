@@ -482,6 +482,18 @@ namespace WWActorEdit
                         //Now the node for the folder will exist for sure, so we can add our file to it.
                         TreeNode fileName = folderNode.Nodes.Add(archiveFile.FileName);
                         fileName.Tag = archiveFile;
+
+                        //We're going to select the Entity Data by default. We'll only select the first
+                        //one which is probably a Room's.
+                        if (archiveFile is ZeldaData && SelectedData == null)
+                        {
+                            //Generate the event once (manually)
+                            if (SelectedEntityDataFileChanged != null)
+                            {
+                                SelectedData = (ZeldaData)archiveFile;
+                                SelectedEntityDataFileChanged((ZeldaData)archiveFile);
+                            }
+                        }
                     }
                 }
             }
