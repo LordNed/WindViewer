@@ -31,11 +31,22 @@ namespace WWActorEdit.Source
         //This is the name of Worlspace Project, sans .wrkDir extension. Max 8 chars.
         public string Name;
 
+        //Absolute file path (ie: C:\..MiniHyo.wrkDir) of the project director
+        public string ProjectFilePath;
+
         public WorldspaceProject()
         {
             Rooms = new List<ZArchive>();
             Stage = null;
             Name = String.Empty;
+        }
+
+        public void SaveAllArchives()
+        {
+            foreach (ZArchive archive in GetAllArchives())
+            {
+                archive.Save(Path.Combine(ProjectFilePath, archive.Name));
+            }
         }
 
         public List<ZArchive> GetAllArchives()
@@ -56,8 +67,8 @@ namespace WWActorEdit.Source
             //Name (sans .wrkDir)
             string wrkDirName = new DirectoryInfo(dirFilePath).Name;
             Name = wrkDirName.Substring(0, wrkDirName.LastIndexOf(".wrkDir"));
-            
 
+            ProjectFilePath = dirFilePath;
 
             //We're going to scan for folders in this directory and construct ZArchives out of their contents.
             string[] subFolders = Directory.GetDirectories(dirFilePath);
@@ -220,6 +231,8 @@ namespace WWActorEdit.Source
                 {
                     BinaryWriter bw = new BinaryWriter(fs);
                     file.Save(bw);
+                    bw.Flush();
+                    fs.Close();
                 }
                 catch (Exception ex)
                 {

@@ -1083,6 +1083,7 @@
             this.Controls.Add(this.PaleGroupBox);
             this.Controls.Add(this.ColorGroupBox);
             this.Controls.Add(this.EnvRGroupBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "EnvironmentLightingEditorForm";
             this.Text = "Environment Lighting Editor";
             this.Load += new System.EventHandler(this.EnvironmentLightingEditorForm_Load);

@@ -564,5 +564,40 @@ namespace WWActorEdit
             //Expand everything
             curDataTV.ExpandAll();
         }
+
+        /// <summary>
+        /// Iterate through the loaded WorldspaceProjects we have and then save
+        /// out all of their files to disk!
+        /// </summary>
+        private void saveAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (WorldspaceProject project in _loadedWorldspaceProjects)
+            {
+                project.SaveAllArchives();
+            }
+        }
+
+        /// <summary>
+        /// This unloads all of the currently loaded WorldspaceProjects. It will
+        /// ask the user if they wish to save the changes.
+        /// </summary>
+        private void unloadAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult saveChanges = MessageBox.Show("Would you like to save your changes?", "Save Changes",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (saveChanges == DialogResult.OK)
+            {
+                foreach (WorldspaceProject project in _loadedWorldspaceProjects)
+                {
+                    project.SaveAllArchives();
+                }
+            }
+
+            _loadedWorldspaceProjects.Clear();
+            if (WorldspaceProjectListModified != null)
+                WorldspaceProjectListModified();
+            if (SelectedEntityDataFileChanged != null)
+                SelectedEntityDataFileChanged(null);
+        }
     }
 }

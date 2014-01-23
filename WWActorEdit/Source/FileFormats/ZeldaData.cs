@@ -100,6 +100,8 @@ namespace WWActorEdit
             //We need to sort out the unique chunks out of our list, as some chunks only have one entry,
             //and some will have multiple. This is kind of a weird implementation, oops.
             var dict = new Dictionary<Type, List<IChunkType>>();
+            //ToDo: This actually seems to more or less work. However, we're writing back in the struct names
+            //which don't always match the original names. I SMELL A SOLUTION WITH C# ATTRIBUTES.
 
             foreach (IChunkType chunkType in _chunkList)
             {

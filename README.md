@@ -36,7 +36,5 @@ We've been checking out HipChat. You can join us here: https://www.hipchat.com/g
 
 # Missing Features: #
 Room / Stage Actor Rendering - Maybe use Multiple Inheritance to implement an extra interface to pull the position from the world? 
-Unloading Archives
-Saving Changes to Worldspace Project
 Toolstrip Status Label Text
 Translation/Rotation of Rooms
