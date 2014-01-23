@@ -179,7 +179,6 @@
             // 
             // VirtDropdownDelete
             // 
-            this.VirtDropdownDelete.Enabled = false;
             this.VirtDropdownDelete.Location = new System.Drawing.Point(142, 18);
             this.VirtDropdownDelete.Name = "VirtDropdownDelete";
             this.VirtDropdownDelete.Size = new System.Drawing.Size(50, 23);
@@ -189,7 +188,6 @@
             // 
             // VirtDropdownAdd
             // 
-            this.VirtDropdownAdd.Enabled = false;
             this.VirtDropdownAdd.Location = new System.Drawing.Point(99, 18);
             this.VirtDropdownAdd.Name = "VirtDropdownAdd";
             this.VirtDropdownAdd.Size = new System.Drawing.Size(37, 23);
@@ -649,7 +647,6 @@
             // 
             // PaleDropdownDelete
             // 
-            this.PaleDropdownDelete.Enabled = false;
             this.PaleDropdownDelete.Location = new System.Drawing.Point(142, 17);
             this.PaleDropdownDelete.Name = "PaleDropdownDelete";
             this.PaleDropdownDelete.Size = new System.Drawing.Size(50, 23);
@@ -668,7 +665,6 @@
             // 
             // PaleDropdownAdd
             // 
-            this.PaleDropdownAdd.Enabled = false;
             this.PaleDropdownAdd.Location = new System.Drawing.Point(99, 17);
             this.PaleDropdownAdd.Name = "PaleDropdownAdd";
             this.PaleDropdownAdd.Size = new System.Drawing.Size(37, 23);
@@ -777,7 +773,6 @@
             // 
             // ColorDropdownDelete
             // 
-            this.ColorDropdownDelete.Enabled = false;
             this.ColorDropdownDelete.Location = new System.Drawing.Point(142, 17);
             this.ColorDropdownDelete.Name = "ColorDropdownDelete";
             this.ColorDropdownDelete.Size = new System.Drawing.Size(50, 23);
@@ -787,7 +782,6 @@
             // 
             // ColorDropdownAdd
             // 
-            this.ColorDropdownAdd.Enabled = false;
             this.ColorDropdownAdd.Location = new System.Drawing.Point(99, 17);
             this.ColorDropdownAdd.Name = "ColorDropdownAdd";
             this.ColorDropdownAdd.Size = new System.Drawing.Size(37, 23);
@@ -908,13 +902,13 @@
             // 
             // EnvRDropdownDelete
             // 
-            this.EnvRDropdownDelete.Enabled = false;
             this.EnvRDropdownDelete.Location = new System.Drawing.Point(145, 15);
             this.EnvRDropdownDelete.Name = "EnvRDropdownDelete";
             this.EnvRDropdownDelete.Size = new System.Drawing.Size(50, 23);
             this.EnvRDropdownDelete.TabIndex = 17;
             this.EnvRDropdownDelete.Text = "Delete";
             this.EnvRDropdownDelete.UseVisualStyleBackColor = true;
+            this.EnvRDropdownDelete.Click += new System.EventHandler(this.EnvRDropdownDelete_Click);
             // 
             // EnvRTypeB
             // 
@@ -929,13 +923,13 @@
             // 
             // EnvRDropdownAdd
             // 
-            this.EnvRDropdownAdd.Enabled = false;
             this.EnvRDropdownAdd.Location = new System.Drawing.Point(102, 15);
             this.EnvRDropdownAdd.Name = "EnvRDropdownAdd";
             this.EnvRDropdownAdd.Size = new System.Drawing.Size(37, 23);
             this.EnvRDropdownAdd.TabIndex = 16;
             this.EnvRDropdownAdd.Text = "Add";
             this.EnvRDropdownAdd.UseVisualStyleBackColor = true;
+            this.EnvRDropdownAdd.Click += new System.EventHandler(this.EnvRDropdownAdd_Click);
             // 
             // EnvRTypeA
             // 

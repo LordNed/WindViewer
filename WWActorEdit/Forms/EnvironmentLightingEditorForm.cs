@@ -467,6 +467,45 @@ namespace WWActorEdit.Forms
         {
             Close();
         }
+
+        private void EnvRDropdownAdd_Click(object sender, EventArgs e)
+        {
+            EnvRChunk envrChunk = new EnvRChunk();
+            _data.AddChunk(envrChunk);
+
+            EnvRDropdown.Items.Add("EnvR [" + EnvRDropdown.Items.Count + "]");
+            EnvRDropdown.SelectedIndex = EnvRDropdown.Items.Count - 1;
+        }
+
+        private void EnvRDropdownDelete_Click(object sender, EventArgs e)
+        {
+            //Remove the chunk they currently have selected
+            _data.RemoveChunk(_envrChunk);
+
+            int prevSelectedIndex = EnvRDropdown.SelectedIndex;
+
+            //Then rebuild the list from scratch so their displayed indexes update.
+            List<EnvRChunk> envrChunks = _data.GetAllChunks<EnvRChunk>();
+            EnvRDropdown.Items.Clear();
+            for (int i = 0; i < envrChunks.Count; i++)
+                EnvRDropdown.Items.Add("EnvR [" + i + "]");
+
+            //Check if they deleted the last chunk
+            if (envrChunks.Count == 0)
+            {
+                EnvRDropdown.SelectedIndex = -1;
+            }
+            else
+            {
+                //We're going to select the *next* chunk (which is actually the same index)
+                //unless they deleted the last item in the list at which point the index is 
+                //no longer valid.
+                EnvRDropdown.SelectedIndex = (prevSelectedIndex >= EnvRDropdown.Items.Count-1)
+                    ? EnvRDropdown.Items.Count - 1
+                    : prevSelectedIndex;
+            }
+
+        }
         
     }
 }

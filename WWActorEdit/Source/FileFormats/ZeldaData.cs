@@ -141,7 +141,7 @@ namespace WWActorEdit
 
                 //RTBL chunks are tables with global offsets to themselves, so they need to recalculate some things
                 if (chnkHeader.Tag.Equals("RTBL"))
-                    adjustRTBL(pair.Value);
+                    AdjustRTBL(pair.Value);
 
                 //Now write the actual chunks to the stream.
                 foreach (IChunkType chunk in pair.Value)
@@ -195,9 +195,27 @@ namespace WWActorEdit
         }
 
         /// <summary>
+        /// Add a user-created chunk to the list.
+        /// </summary>
+        /// <param name="chunk"></param>
+        public void AddChunk(IChunkType chunk)
+        {
+            _chunkList.Add(chunk);
+        }
+
+        /// <summary>
+        /// Remove the specified chunk from teh list.
+        /// </summary>
+        /// <param name="chunk"></param>
+        public void RemoveChunk(IChunkType chunk)
+        {
+            _chunkList.Remove(chunk);
+        }
+
+        /// <summary>
         /// Sets true the lastChunk parameter of the last RTBL chunk
         /// </summary>
-        public void adjustRTBL(List<IChunkType> chunks){
+        private void AdjustRTBL(List<IChunkType> chunks){
 
             ((RTBLChunk)chunks[chunks.Count - 1]).LastRtblChunk = true;
 
