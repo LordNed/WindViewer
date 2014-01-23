@@ -109,7 +109,6 @@
             this.EnvRRainingLabel = new System.Windows.Forms.Label();
             this.EnvRRainingIndex = new System.Windows.Forms.NumericUpDown();
             this.EnvRClearSkiesIndex = new System.Windows.Forms.NumericUpDown();
-            this.dzsFileDropdown = new System.Windows.Forms.ComboBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.colorPickerDialog = new System.Windows.Forms.ColorDialog();
@@ -170,7 +169,7 @@
             this.VirtGroupBox.Controls.Add(this.VirtCenterSkyLabel);
             this.VirtGroupBox.Controls.Add(this.VirtSkyFadeToLabel);
             this.VirtGroupBox.Controls.Add(this.VirtHorizonColorLabel);
-            this.VirtGroupBox.Location = new System.Drawing.Point(12, 440);
+            this.VirtGroupBox.Location = new System.Drawing.Point(12, 410);
             this.VirtGroupBox.Name = "VirtGroupBox";
             this.VirtGroupBox.Size = new System.Drawing.Size(202, 192);
             this.VirtGroupBox.TabIndex = 8;
@@ -363,7 +362,7 @@
             this.PaleGroupBox.Controls.Add(this.PaleDropdownAdd);
             this.PaleGroupBox.Controls.Add(this.PaleActorAmbientColor);
             this.PaleGroupBox.Controls.Add(this.PaleDropdown);
-            this.PaleGroupBox.Location = new System.Drawing.Point(227, 43);
+            this.PaleGroupBox.Location = new System.Drawing.Point(227, 13);
             this.PaleGroupBox.Name = "PaleGroupBox";
             this.PaleGroupBox.Size = new System.Drawing.Size(202, 418);
             this.PaleGroupBox.TabIndex = 7;
@@ -712,7 +711,7 @@
             this.ColorGroupBox.Controls.Add(this.ColoNoonIndex);
             this.ColorGroupBox.Controls.Add(this.ColoAfternoonIndex);
             this.ColorGroupBox.Controls.Add(this.ColoDuskIndex);
-            this.ColorGroupBox.Location = new System.Drawing.Point(12, 228);
+            this.ColorGroupBox.Location = new System.Drawing.Point(12, 198);
             this.ColorGroupBox.Name = "ColorGroupBox";
             this.ColorGroupBox.Size = new System.Drawing.Size(202, 206);
             this.ColorGroupBox.TabIndex = 6;
@@ -896,7 +895,7 @@
             this.EnvRGroupBox.Controls.Add(this.EnvRRainingLabel);
             this.EnvRGroupBox.Controls.Add(this.EnvRRainingIndex);
             this.EnvRGroupBox.Controls.Add(this.EnvRClearSkiesIndex);
-            this.EnvRGroupBox.Location = new System.Drawing.Point(12, 42);
+            this.EnvRGroupBox.Location = new System.Drawing.Point(12, 12);
             this.EnvRGroupBox.Name = "EnvRGroupBox";
             this.EnvRGroupBox.Size = new System.Drawing.Size(201, 180);
             this.EnvRGroupBox.TabIndex = 5;
@@ -1045,17 +1044,9 @@
             this.EnvRClearSkiesIndex.TabIndex = 4;
             this.EnvRClearSkiesIndex.ValueChanged += new System.EventHandler(this.EnvRGroupBoxIndex_ValueChanged);
             // 
-            // dzsFileDropdown
-            // 
-            this.dzsFileDropdown.FormattingEnabled = true;
-            this.dzsFileDropdown.Location = new System.Drawing.Point(12, 13);
-            this.dzsFileDropdown.Name = "dzsFileDropdown";
-            this.dzsFileDropdown.Size = new System.Drawing.Size(417, 21);
-            this.dzsFileDropdown.TabIndex = 9;
-            // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(227, 609);
+            this.saveButton.Location = new System.Drawing.Point(227, 579);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(95, 23);
             this.saveButton.TabIndex = 10;
@@ -1065,7 +1056,7 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(328, 609);
+            this.cancelButton.Location = new System.Drawing.Point(328, 579);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(101, 23);
             this.cancelButton.TabIndex = 11;
@@ -1081,10 +1072,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(441, 647);
+            this.ClientSize = new System.Drawing.Size(441, 615);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
-            this.Controls.Add(this.dzsFileDropdown);
             this.Controls.Add(this.VirtGroupBox);
             this.Controls.Add(this.PaleGroupBox);
             this.Controls.Add(this.ColorGroupBox);
@@ -1205,7 +1195,6 @@
         private System.Windows.Forms.Label EnvRRainingLabel;
         private System.Windows.Forms.NumericUpDown EnvRRainingIndex;
         private System.Windows.Forms.NumericUpDown EnvRClearSkiesIndex;
-        private System.Windows.Forms.ComboBox dzsFileDropdown;
         private System.Windows.Forms.PictureBox PaleFogColor;
         private System.Windows.Forms.Label PaleFogLabel;
         private System.Windows.Forms.Button saveButton;

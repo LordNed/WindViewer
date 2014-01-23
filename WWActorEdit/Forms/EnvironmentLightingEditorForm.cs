@@ -43,46 +43,33 @@ namespace WWActorEdit.Forms
             _stickyWindow = new StickyWindow(this);
         }
 
-        private void LoadDZSForStage(ZeldaArc stage)
+        private void OnSelectedEntityFileChanged(ZeldaData entFile)
         {
-            /*int srcOffset = 0;
-            _data = new ZeldaData(stage.DZSs[0].FileEntry.GetFileData(), ref srcOffset);
+            //Clear the old dropdowns.
+            EnvRDropdown.Items.Clear();
+            ColorDropdown.Items.Clear();
+            PaleDropdown.Items.Clear();
+            VirtDropdown.Items.Clear();
 
-            //Now that the DZSFormat is populated with information, we're going to load the UI up!
+            //First we're going to grab the chunks, populate the dropdowns if they exist.
+            List<EnvRChunk> envrChunks = entFile.GetAllChunks<EnvRChunk>();
+            for (int i = 0; i < envrChunks.Count; i++)
+                EnvRDropdown.Items.Add("EnvR [" + i + "]");
+            List<ColoChunk> coloChunks = entFile.GetAllChunks<ColoChunk>();
+            for (int i = 0; i < coloChunks.Count; i++)
+                ColorDropdown.Items.Add("Colo [" + i + "]");
+            List<PaleChunk> paleChunks = entFile.GetAllChunks<PaleChunk>();
+            for (int i = 0; i < paleChunks.Count; i++)
+                PaleDropdown.Items.Add("Pale [" + i + "]");
+            List<VirtChunk> virtChunks = entFile.GetAllChunks<VirtChunk>();
+            for (int i = 0; i < virtChunks.Count; i++)
+                VirtDropdown.Items.Add("Virt [" + i + "]");
 
-            //EnvR
-            foreach (DZSChunkHeader chunk in _data.ChunkHeaders)
-            {
-                switch (chunk.Tag)
-                {
-                    case "EnvR":
-                        //Populate the Dropdown
-                        for (int i = 0; i < chunk.ElementCount; i++)
-                            EnvRDropdown.Items.Add("EnvR [" + i + "]");
-                        EnvRDropdown.SelectedIndex = 0;
-                        break;
-                    case "Colo":
-                        //Populate the Dropdown
-                        for (int i = 0; i < chunk.ElementCount; i++)
-                            ColorDropdown.Items.Add("Colo [" + i + "]");
-                        ColorDropdown.SelectedIndex = 0;
-                        break;
-                    case "Pale":
-                        //Populate the Dropdown
-                        for (int i = 0; i < chunk.ElementCount; i++)
-                            PaleDropdown.Items.Add("Pale [" + i + "]");
-                        PaleDropdown.SelectedIndex = 0;
-                        break;
-                    case "Virt":
-                        //Populate the Dropdown
-                        for (int i = 0; i < chunk.ElementCount; i++)
-                            VirtDropdown.Items.Add("Virt [" + i + "]");
-                        VirtDropdown.SelectedIndex = 0;
-                        break;
-                    default:
-                        break;
-                }
-            }*/
+            _data = entFile;
+            EnvRDropdown.SelectedIndex = envrChunks.Count > 0 ? 0 : -1;
+            ColorDropdown.SelectedIndex = coloChunks.Count > 0 ? 0 : -1;
+            PaleDropdown.SelectedIndex = paleChunks.Count > 0 ? 0 : -1;
+            VirtDropdown.SelectedIndex = virtChunks.Count > 0 ? 0 : -1;
         }
 
         /// <summary>
@@ -162,28 +149,17 @@ namespace WWActorEdit.Forms
         }
 
         /// <summary>
-        /// Called when the Form is loaded. This is a temporary solution until there's some form of Event evoked by
-        /// Archives being loaded. We'll grab the loaded archives from the MainForm and populate our list of DZS files
-        /// with it.
+        /// Add an event listener for when the user changes which Entity file is selected in the
+        /// tree view.
         /// </summary>
         private void EnvironmentLightingEditorForm_Load(object sender, EventArgs e)
         {
-            ZeldaArc stage = null; //ToDo: Unbreak this lol.
-            if (stage == null)
-            {
-                Console.WriteLine("Load a Stage first!");
-                return;
-            }
+            MainForm.SelectedEntityDataFileChanged += OnSelectedEntityFileChanged;
 
-
-            //For each loaded Archive we're going to want to grab the DZS file out of them.
-            foreach (DZx dzS in stage.DZSs)
-            {
-                dzsFileDropdown.Items.Add(Path.GetFileName(stage.Filename) + @"\" + dzS.FileEntry.FileName);
-            }
-
-            LoadDZSForStage(stage);
-            dzsFileDropdown.SelectedIndex = 0;
+            //If there is already a map loaded when the editor opens then this will be set.
+            ZeldaData entData = MainForm.SelectedData;
+            if (entData != null)
+                OnSelectedEntityFileChanged(entData);
         }
 
         /// <summary>
@@ -409,28 +385,6 @@ namespace WWActorEdit.Forms
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            //OH BOY D:<
-
-
-            /*foreach (DZSChunkHeader chunk in _data.ChunkHeaders)
-            {
-                if (chunk.Tag == "EnvR" || chunk.Tag == "Pale" || chunk.Tag == "Virt" || chunk.Tag == "Colo")
-                {
-                    //By creating the file this way we can still write to it while it's open in another program (ie:
-                    //a hex editor) and then the hex editor can notice the change and reload.
-                    FileStream fs = File.Open(chunk.Tag, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    BinaryWriter bw = new BinaryWriter(fs);
-
-                    for (int i = 0; i < chunk.ElementCount; i++)
-                    {
-                        chunk.ChunkElements[i].WriteData(bw);
-                    }
-
-                    bw.Close();
-                    fs.Close();
-                }
-                
-            }*/
         }
 
         private void cancelButton_Click(object sender, EventArgs e)

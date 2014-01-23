@@ -35,6 +35,9 @@ namespace WWActorEdit
         /* EVENTS */
         public static event Action WorldspaceProjectListModified;  //Fired when a WorldspaceProject is loaded or unloaded
         public static event Action<ZeldaData> SelectedEntityDataFileChanged; //Fired when the currently selected Room/Stage Entity Data changes in the FileBrowser Treeview.
+
+        /* CACHED THINGS */ 
+        public static ZeldaData SelectedData { get; private set; } //Currently selected DZS/DZR in Tree View, otherwise Null.
          
 
         /* MISC */
@@ -320,17 +323,13 @@ namespace WWActorEdit
             if (filePaths[0] == string.Empty)
                 return;
 
-            foreach (string filePath in filePaths)
-            {
-                string workDir = CreateWorkingDirFormArchive(filePath);
+            string workDir = CreateWorkingDirFromArchive(filePaths);
+            if (workDir == string.Empty)
+                return;
 
-                if (workDir == string.Empty)
-                    break;
-
-                //Now that we've extracted the files into the Working Dir (subdir), we'll invoke our regular
-                //old "Open Project" type routine. Super clean!
-                OpenFileFromWorkingDir(workDir);
-            }
+            //Now that we've extracted the files into the Working Dir (subdir), we'll invoke our regular
+            //old "Open Project" type routine. Super clean!
+            OpenFileFromWorkingDir(workDir);
         }
 
         /// <summary>
@@ -388,9 +387,9 @@ namespace WWActorEdit
         /// This creates a new "Working Dir" for a project (ie: "My Documents\WindViewer\MiniHyo"). It is the equivelent
         /// of setting up a project directory for new files. 
         /// </summary>
-        /// <param name="archiveFilePath">Archive to use as the base content to place in the WrkDir.</param>
+        /// <param name="archiveFilePaths">Archive to use as the base content to place in the WrkDir.</param>
         /// <returns></returns>
-        private string CreateWorkingDirFormArchive(string archiveFilePath)
+        private string CreateWorkingDirFromArchive(string[] archiveFilePaths)
         {
             //For each file selected we want to extract it to the working directory.
             string workingDir = Path.Combine(
@@ -404,39 +403,42 @@ namespace WWActorEdit
                 return string.Empty;
 
             string worldspaceName = dialogue.dirName.Text;
+
             workingDir = Path.Combine(workingDir, worldspaceName + ".wrkDir");
-
-            //Don't like using the RARC class but it seems like it can do what I want for now...
-            RARC arc = new RARC(archiveFilePath);
-
-            //We're going to stick these inside a sub-folder inside the .wrkDir directory based on the Arc name (ie: "Room0.arc");
-            string arcName = arc.Filename.Substring(0, arc.Filename.IndexOf('.'));
-            string folderDir = Path.Combine(workingDir, arcName);
-
-            foreach (RARC.FileNode node in arc.Root.ChildNodes)
+            foreach (string filePath in archiveFilePaths)
             {
-                //Create the folder on disk to represent the folder in the Archive.
-                DirectoryInfo outputDir = Directory.CreateDirectory(Path.Combine(folderDir, node.NodeName));
+                //Don't like using the RARC class but it seems like it can do what I want for now...
+                RARC arc = new RARC(filePath);
 
-                //Now extract each of the files in the Archive into this folder.
-                foreach (RARC.FileEntry fileEntry in node.Files)
+                //We're going to stick these inside a sub-folder inside the .wrkDir directory based on the Arc name (ie: "Room0.arc");
+                string arcName = arc.Filename.Substring(0, arc.Filename.IndexOf('.'));
+                string folderDir = Path.Combine(workingDir, arcName);
+
+                foreach (RARC.FileNode node in arc.Root.ChildNodes)
                 {
-                    try
-                    {
-                        //Write the bytes to disk as a binary file and we'll have succesfully unpacked an archive, sweet!
-                        FileStream fs = File.Create(Path.Combine(outputDir.FullName, fileEntry.FileName));
-                        BinaryWriter bw = new BinaryWriter(fs);
+                    //Create the folder on disk to represent the folder in the Archive.
+                    DirectoryInfo outputDir = Directory.CreateDirectory(Path.Combine(folderDir, node.NodeName));
 
-                        bw.Write(fileEntry.GetFileData());
-                        bw.Close();
-                        fs.Close();
-                    }
-                    catch (Exception ex)
+                    //Now extract each of the files in the Archive into this folder.
+                    foreach (RARC.FileEntry fileEntry in node.Files)
                     {
-                        Console.WriteLine("Error opening " + fileEntry.FileName + " for writing, error message: " +
-                                          ex);
-                    }
+                        try
+                        {
+                            //Write the bytes to disk as a binary file and we'll have succesfully unpacked an archive, sweet!
+                            FileStream fs = File.Create(Path.Combine(outputDir.FullName, fileEntry.FileName));
+                            BinaryWriter bw = new BinaryWriter(fs);
 
+                            bw.Write(fileEntry.GetFileData());
+                            bw.Close();
+                            fs.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error opening " + fileEntry.FileName + " for writing, error message: " +
+                                              ex);
+                        }
+
+                    }
                 }
             }
 
@@ -499,20 +501,23 @@ namespace WWActorEdit
         private void fileBrowserTV_AfterSelect(object sender, TreeViewEventArgs e)
         {
             //Lets hope they always pick the default name for Entity files...
-            if (e.Node.Text.ToLower() == "room.dzr" || e.Node.Text.ToLower() == "room.dzs")
+            if (e.Node.Text.ToLower() == "room.dzr" || e.Node.Text.ToLower() == "stage.dzs")
             {
                 //The user has selected an entity file. The reference to which entity file should
                 //be stored in the node's tag, so with a little casting... magic!
                 ZeldaData baseFile = (ZeldaData)e.Node.Tag;
                 if (baseFile == null)
                 {
-                    Console.WriteLine("Error loading Entity Data for selected node. You should probably report this on our Issue Tracker!");
+                    Console.WriteLine("Error loading DZS/DZR for selected node. You should probably report this on our Issue Tracker!");
                     return;
                 }
 
                 //Now we're going to generate an event so that the floating WinForm editors can catch it too...
                 if (SelectedEntityDataFileChanged != null)
+                {
+                    SelectedData = baseFile;
                     SelectedEntityDataFileChanged(baseFile);
+                }
             }
         }
 

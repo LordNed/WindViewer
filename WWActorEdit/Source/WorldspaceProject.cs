@@ -41,7 +41,8 @@ namespace WWActorEdit.Source
         public List<ZArchive> GetAllArchives()
         {
             List<ZArchive> archive = new List<ZArchive>(Rooms);
-            archive.Add(Stage);
+            if(Stage != null)
+                archive.Add(Stage);
 
             return archive;
         }
@@ -268,7 +269,13 @@ namespace WWActorEdit.Source
                             /* Room and Stage Entity Data */
                             case "dzr":
                             case "dzs":
-                                file = new ZeldaData();
+                                //Apparently Nintendo likes to mis-categorize files sometimes and put the wrong
+                                //file format inside the wrong folder! We'll name-check dzr and dzs before loading
+                                //them as they have fixed names (Room.*)
+                                if(filePath.EndsWith(".dzr") || filePath.EndsWith(".dzs"))
+                                    file = new ZeldaData();
+                                else
+                                    file = new GenericData();
                                 break;
 
                             default:
