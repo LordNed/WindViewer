@@ -39,12 +39,12 @@ namespace WWActorEdit
                 {
                     IChunkType chunk;
 
-                    switch (chunkHeader.Tag)
+                    switch (chunkHeader.Tag.ToUpper())
                     {
-                        case "EnvR": chunk = new EnvRChunk(); break;
-                        case "Colo": chunk = new ColoChunk(); break;
-                        case "Pale": chunk = new PaleChunk(); break;
-                        case "Virt": chunk = new VirtChunk(); break;
+                        case "ENVR": chunk = new EnvRChunk(); break;
+                        case "COLO": chunk = new ColoChunk(); break;
+                        case "PALE": chunk = new PaleChunk(); break;
+                        case "VIRT": chunk = new VirtChunk(); break;
                         case "SCLS": chunk = new SclsChunk(); break;
                         case "PLYR": chunk = new PlyrChunk(); break;
                         case "RPAT":
@@ -67,7 +67,7 @@ namespace WWActorEdit
                         case "RARO":
                         case "AROB":
                             chunk = new RaroChunk(); break;
-                        case "Evnt": chunk = new EvntChunk(); break;
+                        case "EVNT": chunk = new EvntChunk(); break;
                         case "ACTR": chunk = new ActrChunk(); break;
                         case "STAG": chunk = new StagChunk(); break;
                         case "RCAM":
@@ -1305,23 +1305,18 @@ namespace WWActorEdit
     /// </summary>
     public class LbnkChunk : IChunkType
     {
-        public uint A, B, C;
+        public byte Data;
 
         public void LoadData(byte[] data, ref int srcOffset)
         {
-            //ToDo: Check the default values for ABC and then throw an assert if they don't match.
-            A = Helpers.Read32(data, srcOffset);
-            B = Helpers.Read32(data, srcOffset + 4);
-            C = Helpers.Read32(data, srcOffset + 8);
+            Data = Helpers.Read8(data, srcOffset);
 
-            srcOffset += 12;
+            srcOffset += 1;
         }
 
         public void WriteData(BinaryWriter stream)
         {
-            FSHelpers.Write32(stream, (int) A);
-            FSHelpers.Write32(stream, (int) B);
-            FSHelpers.Write32(stream, (int) C);
+            FSHelpers.Write8(stream, Data);
         }
     }
 

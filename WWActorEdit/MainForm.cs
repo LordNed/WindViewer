@@ -178,23 +178,41 @@ namespace WWActorEdit
             /* Models */
             foreach (WorldspaceProject worldspaceProject in _loadedWorldspaceProjects)
             {
-                if (renderModelsToolStripMenuItem.Checked == true)
+                if (renderModelsToolStripMenuItem.Checked)
                 {
-                    foreach (ZArchive room in worldspaceProject.Rooms)
+                    ZArchive stage = worldspaceProject.Stage;
+                    ZeldaData entData = null;
+
+                    if(stage != null)
+                        entData= stage.GetFileByType<ZeldaData>();
+
+                    List<MultChunk> chunkData = new List<MultChunk>();
+                    if (entData != null)
+                        chunkData = entData.GetAllChunks<MultChunk>();
+
+                    Vector3 roomTranslation = Vector3.Zero;
+                    float roomRotation = 0f;
+
+                    foreach (ZArchive room in worldspaceProject.GetAllArchives())
                     {
                         GL.PushMatrix();
-                        //GetGlobalTranslation(A);
-                        //GetGlobalRotation(A);
+                        
+
+                        foreach (MultChunk chunk in chunkData)
+                        {
+                            if (chunk.RoomNumber == room.RoomNumber)
+                            {
+                                roomTranslation = new Vector3(chunk.TranslationX, 0f, chunk.TranslationY);
+                                roomRotation = chunk.YRotation/182.04444444444f; //Because Nintendo
+                                break;
+                            }
+                        }
 
                         foreach (J3Dx M in room.GetAllFilesByType<J3Dx>())
                         {
-                            /* Got model translation from Stage? (ex. rooms in sea) */
-                            /*if (A.GlobalTranslation != Vector3.Zero || A.GlobalRotation != 0)
-                            {
-                                //Perform translation
-                                GL.Translate(A.GlobalTranslation);
-                                GL.Rotate(A.GlobalRotation, 0, 1, 0);
-                            }*/
+                            GL.Translate(roomTranslation);
+                            GL.Rotate(roomRotation, 0, 1, 0);
+
                             M.Render();
                         }
 
@@ -544,23 +562,26 @@ namespace WWActorEdit
             //Wipe out any existing stuff
             curDataTV.Nodes.Clear();
 
-            foreach (IChunkType chunk in data.GetAllChunks<IChunkType>())
+            if (data != null)
             {
-                TreeNode baseNode;
-                if (!curDataTV.Nodes.ContainsKey(chunk.GetType().Name))
+                foreach (IChunkType chunk in data.GetAllChunks<IChunkType>())
                 {
-                    baseNode = curDataTV.Nodes.Add(chunk.GetType().Name, chunk.GetType().Name);
-                }
-                else
-                {
-                    TreeNode[] nodes = curDataTV.Nodes.Find(chunk.GetType().Name, false);
-                    baseNode = nodes[0];
-                }
+                    TreeNode baseNode;
+                    if (!curDataTV.Nodes.ContainsKey(chunk.GetType().Name))
+                    {
+                        baseNode = curDataTV.Nodes.Add(chunk.GetType().Name, chunk.GetType().Name);
+                    }
+                    else
+                    {
+                        TreeNode[] nodes = curDataTV.Nodes.Find(chunk.GetType().Name, false);
+                        baseNode = nodes[0];
+                    }
 
-                baseNode.Nodes.Add("[" + baseNode.Nodes.Count + "] - " + chunk.GetType().Name);
+                    baseNode.Nodes.Add("[" + baseNode.Nodes.Count + "] - " + chunk.GetType().Name);
 
+                }
             }
-
+            
             //Expand everything
             curDataTV.ExpandAll();
         }
@@ -597,7 +618,7 @@ namespace WWActorEdit
             if (WorldspaceProjectListModified != null)
                 WorldspaceProjectListModified();
             if (SelectedEntityDataFileChanged != null)
-                SelectedEntityDataFileChanged(null);
+                SelectedEntityDataFileChanged(null);    
         }
     }
 }
