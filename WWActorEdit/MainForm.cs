@@ -338,6 +338,11 @@ namespace WWActorEdit
             Process.Start(@"https://github.com/pho/WindViewer/wiki/");
         }
 
+        private void issueTrackerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start(@"https://github.com/pho/WindViewer/issues?page=1&state=open");
+        }
+
         /// <summary>
         /// Opens a Utility for converting Big-Endian floats from Hexidecimal to Float and back.
         /// </summary>
@@ -677,5 +682,7 @@ namespace WWActorEdit
 
             //ToDo: Ask if the user wants to save.
         }
+
+       
     }
 }

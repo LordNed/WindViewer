@@ -77,6 +77,7 @@
             this.exportArchivesrarcToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.unloadAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.issueTrackerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -334,6 +335,7 @@
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.wikiToolStripMenuItem,
+            this.issueTrackerToolStripMenuItem,
             this.toolStripMenuItem5,
             this.aboutToolStripMenuItem,
             this.toolStripSeparator4,
@@ -528,6 +530,13 @@
             this.unloadAllToolStripMenuItem.Text = "&Unload All";
             this.unloadAllToolStripMenuItem.Click += new System.EventHandler(this.unloadAllToolStripMenuItem_Click);
             // 
+            // issueTrackerToolStripMenuItem
+            // 
+            this.issueTrackerToolStripMenuItem.Name = "issueTrackerToolStripMenuItem";
+            this.issueTrackerToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.issueTrackerToolStripMenuItem.Text = "&Issue Tracker";
+            this.issueTrackerToolStripMenuItem.Click += new System.EventHandler(this.issueTrackerToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -616,6 +625,7 @@
         private System.Windows.Forms.ToolStripMenuItem exportArchivesrarcToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripMenuItem unloadAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem issueTrackerToolStripMenuItem;
     }
 }
 
