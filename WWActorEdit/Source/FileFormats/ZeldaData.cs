@@ -1460,8 +1460,8 @@ namespace WWActorEdit
         public HalfRotation(byte[] data, ref int srcOffset)
         {
             X = (short) Helpers.Read16(data, srcOffset);
-            Y = (short) Helpers.Read16(data, srcOffset);
-            Z = (short) Helpers.Read16(data, srcOffset);
+            Y = (short) Helpers.Read16(data, srcOffset+2);
+            Z = (short) Helpers.Read16(data, srcOffset+4);
 
             srcOffset += 6;
         }

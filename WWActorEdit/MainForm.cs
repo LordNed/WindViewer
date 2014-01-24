@@ -14,6 +14,8 @@ using System.Globalization;
 using System.Windows.Forms.VisualStyles;
 using Blue.Windows;
 using FolderSelect;
+using JWC;
+using Microsoft.Win32;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -44,6 +46,8 @@ namespace WWActorEdit
         /* MISC */
         private bool _glContextLoaded; //Has the GL Control been loaded? Used to prevent rendering before GL is Initialized.
         private StickyWindow _stickyWindow; //Used for "dockable" WinForms
+        private MruStripMenu _mruMenu; //Most Recently Used Menu Strip
+        private string _mruRegKey = "SOFTWARE\\Wind Viewer";
 
         public MainForm()
         {
@@ -52,6 +56,23 @@ namespace WWActorEdit
 
             _stickyWindow = new StickyWindow(this);
             _loadedWorldspaceProjects = new List<WorldspaceProject>();
+            _mruMenu = new MruStripMenu(recentDirsToolStripMenuItem, OnMruClickedHandler, _mruRegKey + "\\MRU", 6);
+        }
+
+        private void OnMruClickedHandler(int number, string filename)
+        {
+            _mruMenu.SetFirstFile(number);
+
+            if (Directory.Exists(filename))
+            {
+                OpenFileFromWorkingDir(filename);
+            }
+            else
+            {
+                MessageBox.Show("Selected file not found, removing.", "Missing File", MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                _mruMenu.RemoveFile(filename);
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -364,9 +385,18 @@ namespace WWActorEdit
             //into our list of open projects. Then we can operate out of the WorldspaceProject references
             //and save and stuff.
 
+            //Scan loaded projects to make sure we haven't already loaded it.
+            foreach (WorldspaceProject project in _loadedWorldspaceProjects)
+            {
+                if (project.ProjectFilePath == workDir)
+                    return;
+            }
+
             WorldspaceProject worldProj = new WorldspaceProject();
             worldProj.LoadFromDirectory(workDir);
             _loadedWorldspaceProjects.Add(worldProj);
+
+            _mruMenu.AddFile(worldProj.ProjectFilePath);
 
             if (WorldspaceProjectListModified != null)
                 WorldspaceProjectListModified();
@@ -378,8 +408,6 @@ namespace WWActorEdit
         /// </summary>
         private void openWorldspaceDirToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //This is a crappy version of the thing but I can't find the WinForm someone made that replicates
-            //the OpenFileDialog but for folders instead... Sorry!
             FolderSelectDialog ofd = new FolderSelectDialog();
             ofd.Title = "Navigate to a folder that ends in .wrkDir";
 
@@ -601,25 +629,6 @@ namespace WWActorEdit
                         i++;
                     }
                 }
-                /*foreach (IChunkType chunk in data.GetAllChunks<IChunkType>())
-                {
-                    TreeNode baseNode;
-                    if (!curDataTV.Nodes.ContainsKey(chunk.GetType().Name))
-                    {
-                        baseNode = curDataTV.Nodes.Add(chunk.GetType().Name, chunk.GetType().Name);
-                    }
-                    else
-                    {
-                        TreeNode[] nodes = curDataTV.Nodes.Find(chunk.GetType().Name, false);
-                        baseNode = nodes[0];
-                    }
-
-                    TreeNode node = baseNode.Nodes.Add("[" + baseNode.Nodes.Count + "] - " + chunk.GetType().Name);
-                    ChunkName chunkAttrib = (ChunkName)chunk.GetType().GetCustomAttributes(typeof(ChunkName), false)[0];
-                    if (chunkAttrib != null)
-                        node.Text = chunkAttrib.HumanName;
-
-                }*/
             }
             
             //Expand everything
@@ -659,6 +668,14 @@ namespace WWActorEdit
                 WorldspaceProjectListModified();
             if (SelectedEntityDataFileChanged != null)
                 SelectedEntityDataFileChanged(null);    
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //Save our MRU File List
+            _mruMenu.SaveToRegistry(_mruRegKey + "\\MRU");
+
+            //ToDo: Ask if the user wants to save.
         }
     }
 }

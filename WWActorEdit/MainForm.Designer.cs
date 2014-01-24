@@ -173,7 +173,6 @@
             // 
             // recentDirsToolStripMenuItem
             // 
-            this.recentDirsToolStripMenuItem.Enabled = false;
             this.recentDirsToolStripMenuItem.Name = "recentDirsToolStripMenuItem";
             this.recentDirsToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.recentDirsToolStripMenuItem.Text = "&Recent Dirs...";
@@ -543,6 +542,7 @@
             this.MinimumSize = new System.Drawing.Size(800, 451);
             this.Name = "MainForm";
             this.Text = "Wind Viewer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

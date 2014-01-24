@@ -113,6 +113,7 @@
     <Compile Include="Source\FileFormats\GenericData.cs" />
     <Compile Include="Source\Util\ChunkName.cs" />
     <Compile Include="Source\Util\FolderSelectDialog.cs" />
+    <Compile Include="Source\Util\MruStripMenu.cs" />
     <Compile Include="Source\Util\ObjectExtensions.cs" />
     <Compile Include="Source\Util\Reflector.cs" />
     <Compile Include="Source\WorldspaceProject.cs" />
