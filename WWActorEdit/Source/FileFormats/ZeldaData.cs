@@ -100,6 +100,10 @@ namespace WWActorEdit
                             Console.WriteLine("Unsupported Chunk Tag: " + chunkHeader.Tag +
                                               " making DefaultChunk() instead!");
                             chunk = new DefaultChunk();
+#if !DEBUG
+                            throw new Exception(
+                                "Hey! You found a chunk type that doesn't exist yet. This chunk will /not/ get saved to the DZR/DZS file! Please report it on our Issue Tracker ASAP!");
+#endif
                             break;
                     }
 

@@ -261,7 +261,7 @@ namespace WWActorEdit.Source
                 foreach (string filePath in subFiles)
                 {
                     BinaryReader br = new BinaryReader(File.OpenRead(filePath));
-                    try
+                    //try
                     {
                         BaseArchiveFile file;
 
@@ -311,10 +311,10 @@ namespace WWActorEdit.Source
                         _archiveFiles.Add(file);
                         br.Close();
                     }
-                    catch (Exception ex)
+                    /*catch (Exception ex)
                     {
                         Console.WriteLine("Error opening file " + filePath + " for reading. Error Message: " + ex);
-                    }
+                    }*/
                 }
             }
         }
