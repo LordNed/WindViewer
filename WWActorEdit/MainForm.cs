@@ -565,7 +565,43 @@ namespace WWActorEdit
 
             if (data != null)
             {
-                foreach (IChunkType chunk in data.GetAllChunks<IChunkType>())
+                foreach (KeyValuePair<Type, List<IChunkType>> pair in data.GetData())
+                {
+                    //This is the top-level grouping, ie: "Doors". We just don't know the name yet.
+                    TreeNode topLevelNode = curDataTV.Nodes.Add("ChunkHeader");
+                    int i = 0; 
+                    foreach (IChunkType chunk in pair.Value)
+                    {
+                        ChunkName chunkAttrib =
+                            (ChunkName) chunk.GetType().GetCustomAttributes(typeof (ChunkName), false)[0];
+                        
+                        //Name the topLevelNode for easy display.
+                        topLevelNode.Text = "[" + chunkAttrib.OriginalName.ToUpper() + "] " + chunkAttrib.HumanName;
+
+                        string displayName = string.Empty;
+                        //Now generate the name for our current node. If it doesn't have a DisplayName attribute then we'll just
+                        //use an index, otherwise we'll use the display name + index.
+                        foreach(var field in chunk.GetType().GetFields())
+                        {
+                            DisplayName dispNameAttribute =
+                                (DisplayName) Attribute.GetCustomAttribute(field, typeof (DisplayName));
+                            if (dispNameAttribute != null)
+                            {
+                                displayName = (string) field.GetValue(chunk);
+
+                            }
+                        }
+
+                        if (displayName == string.Empty)
+                        {
+                            displayName = chunkAttrib.HumanName;
+                        }
+
+                        topLevelNode.Nodes.Add("[" + i + "] " + displayName);
+                        i++;
+                    }
+                }
+                /*foreach (IChunkType chunk in data.GetAllChunks<IChunkType>())
                 {
                     TreeNode baseNode;
                     if (!curDataTV.Nodes.ContainsKey(chunk.GetType().Name))
@@ -583,7 +619,7 @@ namespace WWActorEdit
                     if (chunkAttrib != null)
                         node.Text = chunkAttrib.HumanName;
 
-                }
+                }*/
             }
             
             //Expand everything

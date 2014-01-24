@@ -20,8 +20,9 @@ namespace WWActorEdit
     /// </summary>
     public class ZeldaData : BaseArchiveFile
     {
-        //The only thing we keep is a list of the Chunks as this is all we need to re-create the file.
-        private List<IChunkType> _chunkList;
+        //We're going to store the chunks in a sorted list of chunks. It'll make adding and saving
+        //chunks a little more complicated but it should make retrieving them a lot easier.
+        private List<KeyValuePair<Type, List<IChunkType>>> _chunkList;
 
         public override void Load(byte[] data)
         {
@@ -29,8 +30,7 @@ namespace WWActorEdit
             DZSHeader header = new DZSHeader();
             header.Load(data, ref offset);
 
-
-            _chunkList = new List<IChunkType>();
+            _chunkList = new List<KeyValuePair<Type, List<IChunkType>>>();
 
             for (int i = 0; i < header.ChunkCount; i++)
             {
@@ -41,6 +41,7 @@ namespace WWActorEdit
                 {
                     IChunkType chunk;
 
+                    //ToDo: We could probably iterate through our custom attribute using reflection and remove this giant switch.
                     switch (chunkHeader.Tag.ToUpper())
                     {
                         case "ENVR": chunk = new EnvRChunk(); break;
@@ -95,51 +96,29 @@ namespace WWActorEdit
                     if(chunkAttrib != null)
                         chunkAttrib.OriginalName = chunkHeader.Tag.ToUpper();
                     chunk.LoadData(data, ref chunkHeader.ChunkOffset);
-                    _chunkList.Add(chunk);
+                    
+                    //We're going to call our public Add thing so we don't duplicate logic.
+                    AddChunk(chunk);
                 }
             }
         }
 
         public override void Save(BinaryWriter stream)
         {
-            //This is a really weird/complicated implementation. We can fill out the DZSHeader pretty easily
-            //but then we don't know the offsets until we write them... To fix this we're going to jump around
-            //in the stream a little bit. It's kind of weird. There's probably a simpler implementation that I'm
-            //missing, but oh well.
-
-            //We need to sort out the unique chunks out of our list, as some chunks only have one entry,
-            //and some will have multiple. This is kind of a weird implementation, oops.
-            var dict = new Dictionary<Type, List<IChunkType>>();
-
-            foreach (IChunkType chunkType in _chunkList)
-            {
-                //If the dictionary already contains the key, then the list exists and we can just add to it.
-                if (dict.ContainsKey(chunkType.GetType()))
-                {
-                    dict[chunkType.GetType()].Add(chunkType);
-                }
-                else
-                {
-                    //The dictionary doesn't contain the key, so make the list and add it.
-                    dict[chunkType.GetType()] = new List<IChunkType>();
-                    dict[chunkType.GetType()].Add(chunkType);
-                }
-            }
-
             //Write the Header
             DZSHeader header = new DZSHeader();
-            header.ChunkCount = dict.Count;
+            header.ChunkCount = _chunkList.Count;
             header.Save(stream);
 
             int curOffset = (int)stream.BaseStream.Position;
 
             //Then allocate numChunkHeaders * chunkHeaderSize and then write the chunks, and then we'll go back...?
-            stream.BaseStream.Position += dict.Count*12; //A chunk Header is 12 bytes in size.
+            stream.BaseStream.Position += _chunkList.Count*12; //A chunk Header is 12 bytes in size.
 
             List<DZSChunkHeader> headerList = new List<DZSChunkHeader>();
 
             //Now write all the chunk headers
-            foreach (KeyValuePair<Type, List<IChunkType>> pair in dict)
+            foreach (KeyValuePair<Type, List<IChunkType>> pair in _chunkList)
             {
                 DZSChunkHeader chnkHeader = new DZSChunkHeader();
                 chnkHeader.ChunkOffset = (int) stream.BaseStream.Position;
@@ -179,10 +158,13 @@ namespace WWActorEdit
         /// <returns></returns>
         public T GetSingleChunk<T>()
         {
-            foreach (IChunkType chunk in _chunkList)
+            foreach (KeyValuePair<Type, List<IChunkType>> pair in _chunkList)
             {
-                if (chunk is T)
-                    return (T)chunk;
+                if (pair.Key == typeof (T))
+                {
+                    if (pair.Value.Count > 0)
+                        return (T)pair.Value[0];
+                }
             }
 
             return default(T);
@@ -196,14 +178,20 @@ namespace WWActorEdit
         /// <returns></returns>
         public List<T> GetAllChunks<T>()
         {
-            List<T> returnList = new List<T>();
-            foreach (IChunkType chunk in _chunkList)
+            List<T> newList = new List<T>();
+            foreach (KeyValuePair<Type, List<IChunkType>> pair in _chunkList)
             {
-                if (chunk is T)
-                    returnList.Add((T)chunk);
+                if (pair.Key == typeof (T))
+                {
+                    foreach (IChunkType type in pair.Value)
+                    {
+                        newList.Add((T) type);
+                    }
+                    break;
+                }
             }
 
-            return returnList;
+            return newList;
         }
 
         /// <summary>
@@ -212,7 +200,23 @@ namespace WWActorEdit
         /// <param name="chunk"></param>
         public void AddChunk(IChunkType chunk)
         {
-            _chunkList.Add(chunk);
+            Type chunkType = chunk.GetType();
+
+            foreach (KeyValuePair<Type, List<IChunkType>> pair in _chunkList)
+            {
+                //If the key already exists then we're going to just add it to the list.
+                if (pair.Key == chunkType)
+                {
+                    pair.Value.Add(chunk);
+                    return;
+                }
+            }
+
+            //If we're hitting here then the Key doesn't exist in our KVP list so we're going to create it.
+            _chunkList.Add(new KeyValuePair<Type, List<IChunkType>>(chunkType, new List<IChunkType>()));
+
+            //Then we're going to add it. Add doesn't return the object added which is a pain.
+            _chunkList[_chunkList.Count - 1].Value.Add(chunk);
         }
 
         /// <summary>
@@ -221,29 +225,48 @@ namespace WWActorEdit
         /// <param name="chunk"></param>
         public void RemoveChunk(IChunkType chunk)
         {
-            _chunkList.Remove(chunk);
+            //Removal code is somewhat complicated. We need to find the chunk, 
+            //remove it and remove the entry from the main list if its the last.
+            Type chunkType = chunk.GetType();
+
+            foreach (KeyValuePair<Type, List<IChunkType>> pair in _chunkList)
+            {
+                if (pair.Key == chunkType)
+                {
+                    pair.Value.Remove(chunk);
+                    if (pair.Value.Count == 0)
+                    {
+                        //Great, we removed the last chunk of a type. Lets remove the entry entirely.
+                        _chunkList.Remove(pair);
+                        return;
+                    }
+                }
+            }
         }
 
         /// <summary>
         /// Sets true the lastChunk parameter of the last RTBL chunk
         /// </summary>
-        private void AdjustRTBL(List<IChunkType> chunks){
-
-            ((RTBLChunk)chunks[chunks.Count - 1]).LastRtblChunk = true;
-
+        private void AdjustRTBL(List<IChunkType> chunks)
+        {
+            ((RTBLChunk) chunks[chunks.Count - 1]).LastRtblChunk = true;
         }
 
         public void RemoveAllChunksOfType<T>()
         {
-            List<IChunkType> chunksToRemove = new List<IChunkType>();
-            foreach (IChunkType chunk in _chunkList)
+            foreach (KeyValuePair<Type, List<IChunkType>> pair in _chunkList)
             {
-                if (chunk is T)
-                    chunksToRemove.Add(chunk);
+                if (pair.Key == typeof (T))
+                {
+                    _chunkList.Remove(pair);
+                    return;
+                }
             }
+        }
 
-            foreach (IChunkType chunk in chunksToRemove)
-                _chunkList.Remove(chunk);
+        public List<KeyValuePair<Type, List<IChunkType>>> GetData()
+        {
+            return _chunkList;
         }
     }
 
@@ -312,7 +335,7 @@ namespace WWActorEdit
     /// <summary>
     /// For anything not supported yet!
     /// </summary>
-    [ChunkName("OOPS", "Unknown")]
+    [ChunkName("????", "Unknown")]
     public class DefaultChunk : IChunkType
     {
         public void LoadData(byte[] data, ref int srcOffset) {}
@@ -563,6 +586,7 @@ namespace WWActorEdit
     [ChunkName("SCLS", "Exits")]
     public class SclsChunk : IChunkType
     {
+        [DisplayName]
         public string DestinationName;
         public byte SpawnNumber;
         public byte DestinationRoomNumber;
@@ -597,6 +621,7 @@ namespace WWActorEdit
     [ChunkName("PLYR", "Player Spawn(s)")]
     public class PlyrChunk : IChunkType
     {
+        [DisplayName]
         public string Name; //"Link"
         public byte EventIndex; //Spcifies an event from the DZS file to play upon spawn. FF = no event.
         public byte Unknown1; //Padding?
@@ -692,6 +717,7 @@ namespace WWActorEdit
     [ChunkName("SOND", "Sound")]
     public class SondChunk : IChunkType
     {
+        [DisplayName]
         public string Name; //Seems to always be "sndpath"
         public Vector3 SourcePos; //Position the sound plays from
         public byte Unknown1; //Typically 00, one example had 08.
@@ -799,6 +825,7 @@ namespace WWActorEdit
     [ChunkName("RCAM", "Camera Usage")]
     public class RcamChunk : IChunkType
     {
+        [DisplayName]
         public string CameraType;
         public int Padding;
 
@@ -860,6 +887,7 @@ namespace WWActorEdit
     [ChunkName("TRES", "Treasure Chests (Non-Ocean)")]
     public class TresChunk : IChunkType
     {
+        [DisplayName]
         public string Name; //Usually Takara, 8 bytes + null terminator.
         public ushort ChestType; //Big Key, Common Wooden, etc.
         public Vector3 Position;
@@ -1048,6 +1076,7 @@ namespace WWActorEdit
     public class EvntChunk : IChunkType
     {
         public byte Unknown;
+        [DisplayName]
         public String EventName;
         public byte Unknown2;
         public byte Unknown3;
@@ -1094,6 +1123,7 @@ namespace WWActorEdit
     [ChunkName("ACTR", "Actor")]
     public class ActrChunk : IChunkType
     {
+        [DisplayName]
         public string Name;
         public byte Unknown1;
         public byte RpatIndex;
@@ -1358,6 +1388,7 @@ namespace WWActorEdit
     [ChunkName("SCOB", "Scaleable Objects")]
     public class ScobChunk : IChunkType
     {
+        [DisplayName]
         public string ObjectName; //Always 8 bytes
         public byte Param0;
         public byte Param1;

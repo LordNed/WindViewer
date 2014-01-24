@@ -17,4 +17,11 @@ namespace WWActorEdit.Source.Util
             HumanName = readableName;
         }
     }
+
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class DisplayName : Attribute
+    {
+       
+    }
 }
