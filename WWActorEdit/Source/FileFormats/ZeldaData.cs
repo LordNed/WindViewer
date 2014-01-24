@@ -43,7 +43,7 @@ namespace WWActorEdit
                     BaseChunk chunk;
 
                     //We're going to use only the first 3 characters so we can catch ACT* which is ACT0-9 and ACTA-F.
-                    switch (chunkHeader.Tag.ToUpper().Substring(0, 3))
+                    switch (chunkHeader.Tag.ToUpper())
                     {
                         case "ENVR": chunk = new EnvRChunk(); break;
                         case "COLO": chunk = new ColoChunk(); break;
@@ -79,6 +79,23 @@ namespace WWActorEdit
                         case "LBNK": chunk = new LbnkChunk(); break;
                         case "SCOB": chunk = new ScobChunk(); break;
                         /* All of the frigging Actor Layers */
+                        case "ACT0": chunk = new Act0Chunk(); break;
+                        case "ACT1": chunk = new Act1Chunk(); break;
+                        case "ACT2": chunk = new Act2Chunk(); break;
+                        case "ACT3": chunk = new Act3Chunk(); break;
+                        case "ACT4": chunk = new Act4Chunk(); break;
+                        case "ACT5": chunk = new Act5Chunk(); break;
+                        case "ACT6": chunk = new Act6Chunk(); break;
+                        case "ACT7": chunk = new Act7Chunk(); break;
+                        case "ACT8": chunk = new Act8Chunk(); break;
+                        case "ACT9": chunk = new Act9Chunk(); break;
+                        case "ACTA": chunk = new ActAChunk(); break;
+                        case "ACTB": chunk = new ActBChunk(); break;
+                        case "ACTC": chunk = new ActCChunk(); break;
+                        case "ACTD": chunk = new ActDChunk(); break;
+                        case "ACTE": chunk = new ActEChunk(); break;
+                        case "ACTF": chunk = new ActFChunk(); break;
+
                         default:
                             Console.WriteLine("Unsupported Chunk Tag: " + chunkHeader.Tag +
                                               " making DefaultChunk() instead!");
@@ -1216,11 +1233,23 @@ namespace WWActorEdit
         }
     }
 
-    [ChunkName("TGOB", "Actor")]
-    public class TgobChunk : ActrChunk
-    {
-        
-    }
+    [ChunkName("TGOB", "Actor")] public class TgobChunk : ActrChunk {}
+    [ChunkName("ACT0", "Actor Layer 0")] public class Act0Chunk : ActrChunk{}
+    [ChunkName("ACT1", "Actor Layer 1")] public class Act1Chunk : ActrChunk{}
+    [ChunkName("ACT2", "Actor Layer 2")] public class Act2Chunk : ActrChunk{}
+    [ChunkName("ACT3", "Actor Layer 3")] public class Act3Chunk : ActrChunk{}
+    [ChunkName("ACT4", "Actor Layer 4")] public class Act4Chunk : ActrChunk{}
+    [ChunkName("ACT5", "Actor Layer 5")] public class Act5Chunk : ActrChunk{}
+    [ChunkName("ACT6", "Actor Layer 6")] public class Act6Chunk : ActrChunk{}
+    [ChunkName("ACT7", "Actor Layer 7")] public class Act7Chunk : ActrChunk{}
+    [ChunkName("ACT8", "Actor Layer 8")] public class Act8Chunk : ActrChunk{}
+    [ChunkName("ACT9", "Actor Layer 9")] public class Act9Chunk : ActrChunk{}
+    [ChunkName("ACTa", "Actor Layer A")] public class ActAChunk : ActrChunk{}
+    [ChunkName("ACTb", "Actor Layer B")] public class ActBChunk : ActrChunk{}
+    [ChunkName("ACTc", "Actor Layer C")] public class ActCChunk : ActrChunk{}
+    [ChunkName("ACTd", "Actor Layer D")] public class ActDChunk : ActrChunk{}
+    [ChunkName("ACTe", "Actor Layer E")] public class ActEChunk : ActrChunk{}
+    [ChunkName("ACTf", "Actor Layer F")] public class ActFChunk : ActrChunk{}
 
     [ChunkName("STAG", "Stage")]
     public class StagChunk : BaseChunk
