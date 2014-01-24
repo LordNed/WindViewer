@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using OpenTK;
 using WWActorEdit.Kazari;
 using WWActorEdit.Source;
@@ -88,6 +89,11 @@ namespace WWActorEdit
                             break;
                     }
 
+                    //We're going to store the original name from loaded files in the ChunkName attribute of the chunk.
+                    //This allows us to preserve the original name of unknown chunks (which store their data in DefaultChunk)
+                    ChunkName chunkAttrib = (ChunkName) chunk.GetType().GetCustomAttributes(typeof(ChunkName), false)[0];
+                    if(chunkAttrib != null)
+                        chunkAttrib.OriginalName = chunkHeader.Tag.ToUpper();
                     chunk.LoadData(data, ref chunkHeader.ChunkOffset);
                     _chunkList.Add(chunk);
                 }
@@ -104,8 +110,6 @@ namespace WWActorEdit
             //We need to sort out the unique chunks out of our list, as some chunks only have one entry,
             //and some will have multiple. This is kind of a weird implementation, oops.
             var dict = new Dictionary<Type, List<IChunkType>>();
-            //ToDo: This actually seems to more or less work. However, we're writing back in the struct names
-            //which don't always match the original names. I SMELL A SOLUTION WITH C# ATTRIBUTES.
 
             foreach (IChunkType chunkType in _chunkList)
             {
@@ -139,7 +143,9 @@ namespace WWActorEdit
             {
                 DZSChunkHeader chnkHeader = new DZSChunkHeader();
                 chnkHeader.ChunkOffset = (int) stream.BaseStream.Position;
-                chnkHeader.Tag = pair.Key.Name.Substring(0, 4);
+                ChunkName nameAttrib = (ChunkName) pair.Key.GetCustomAttributes(typeof (ChunkName), false)[0];
+
+                chnkHeader.Tag = nameAttrib != null ? nameAttrib.OriginalName : "OOPS";
                 chnkHeader.ElementCount = pair.Value.Count;
 
                 headerList.Add(chnkHeader);
@@ -306,6 +312,7 @@ namespace WWActorEdit
     /// <summary>
     /// For anything not supported yet!
     /// </summary>
+    [ChunkName("OOPS", "Unknown")]
     public class DefaultChunk : IChunkType
     {
         public void LoadData(byte[] data, ref int srcOffset) {}
