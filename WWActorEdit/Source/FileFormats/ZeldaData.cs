@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using OpenTK;
@@ -39,10 +40,10 @@ namespace WWActorEdit
 
                 for (int k = 0; k < chunkHeader.ElementCount; k++)
                 {
-                    IChunkType chunk;
+                    BaseChunk chunk;
 
-                    //ToDo: We could probably iterate through our custom attribute using reflection and remove this giant switch.
-                    switch (chunkHeader.Tag.ToUpper())
+                    //We're going to use only the first 3 characters so we can catch ACT* which is ACT0-9 and ACTA-F.
+                    switch (chunkHeader.Tag.ToUpper().Substring(0, 3))
                     {
                         case "ENVR": chunk = new EnvRChunk(); break;
                         case "COLO": chunk = new ColoChunk(); break;
@@ -50,13 +51,10 @@ namespace WWActorEdit
                         case "VIRT": chunk = new VirtChunk(); break;
                         case "SCLS": chunk = new SclsChunk(); break;
                         case "PLYR": chunk = new PlyrChunk(); break;
-                        case "RPAT":
-                        case "PATH":
-                            chunk = new RPATChunk(); break;
-                        case "RPPN":
-                        case "PPNT":
-                            chunk = new RppnChunk(); break;
-
+                        case "RPAT": chunk = new RPATChunk(); break;
+                        case "PATH": chunk = new PathChunk(); break;
+                        case "RPPN": chunk = new RppnChunk(); break;
+                        case "PPNT": chunk = new PpntChunk(); break;
                         case "SOND": chunk = new SondChunk(); break;
                         case "FILI": chunk = new FiliChunk(); break;
                         case "MECO": chunk = new MecoChunk(); break;
@@ -64,25 +62,23 @@ namespace WWActorEdit
                         case "TRES": chunk = new TresChunk(); break;
                         case "SHIP" : chunk = new ShipChunk(); break;
                         case "MULT" : chunk = new MultChunk(); break;
-                        case "LGHT":
-                        case "LGTV":
-                            chunk = new LghtChunk(); break;
-                        case "RARO":
-                        case "AROB":
-                            chunk = new RaroChunk(); break;
+                        case "LGHT": chunk = new LghtChunk(); break;
+                        case "LGTV": chunk = new LgtvChunk(); break;
+                        case "RARA": chunk = new RaroChunk(); break;
+                        case "AROB": chunk = new ArobChunk(); break;       
                         case "EVNT": chunk = new EvntChunk(); break;
+                        case "TGOB": chunk = new TgobChunk(); break;
                         case "ACTR": chunk = new ActrChunk(); break;
                         case "STAG": chunk = new StagChunk(); break;
-                        case "RCAM":
-                        case "CAMR":
-                            chunk = new RcamChunk(); break;
+                        case "RCAM": chunk = new RcamChunk(); break;
+                        case "CAMR": chunk = new CamrChunk(); break;
                         case "FLOR": chunk = new FlorChunk(); break;
-                        case "TWOD":
-                        case "2DMA":
-                            chunk = new TwoDMAChunk(); break;
+                        case "TWOD": chunk = new TwoDChunk(); break;
+                        case "2DMA": chunk = new TwoDMAChunk(); break;  
                         case "DMAP": chunk = new DMAPChunk(); break;
                         case "LBNK": chunk = new LbnkChunk(); break;
                         case "SCOB": chunk = new ScobChunk(); break;
+                        /* All of the frigging Actor Layers */
                         default:
                             Console.WriteLine("Unsupported Chunk Tag: " + chunkHeader.Tag +
                                               " making DefaultChunk() instead!");
@@ -92,9 +88,7 @@ namespace WWActorEdit
 
                     //We're going to store the original name from loaded files in the ChunkName attribute of the chunk.
                     //This allows us to preserve the original name of unknown chunks (which store their data in DefaultChunk)
-                    ChunkName chunkAttrib = (ChunkName) chunk.GetType().GetCustomAttributes(typeof(ChunkName), false)[0];
-                    if(chunkAttrib != null)
-                        chunkAttrib.OriginalName = chunkHeader.Tag.ToUpper();
+                    chunk.ChunkName = chunkHeader.Tag;
                     chunk.LoadData(data, ref chunkHeader.ChunkOffset);
                     
                     //We're going to call our public Add thing so we don't duplicate logic.
@@ -122,9 +116,8 @@ namespace WWActorEdit
             {
                 DZSChunkHeader chnkHeader = new DZSChunkHeader();
                 chnkHeader.ChunkOffset = (int) stream.BaseStream.Position;
-                ChunkName nameAttrib = (ChunkName) pair.Key.GetCustomAttributes(typeof (ChunkName), false)[0];
 
-                chnkHeader.Tag = nameAttrib != null ? nameAttrib.OriginalName : "OOPS";
+                chnkHeader.Tag = ((BaseChunk) pair.Value[0]).ChunkName;
                 chnkHeader.ElementCount = pair.Value.Count;
 
                 headerList.Add(chnkHeader);
@@ -333,13 +326,32 @@ namespace WWActorEdit
     #region DZS Chunk File Formats
 
     /// <summary>
+    /// Ugh. I was trying to avoid this. I wanted to use
+    /// custom Attributes to store the original filename
+    /// that the chunk used (to support DefaultChunk and
+    /// the ACT0-9/ACTa-f chunks) but since the Attributes
+    /// are baked into the DLL, changing their values is 
+    /// lost by the time we save. We'll have to stick the 
+    /// name in this BaseChunk and make everyone drive from it.
+    /// </summary>
+    public abstract class BaseChunk : IChunkType
+    {
+        public string ChunkName; //Set on Load to either the original DZS value
+                                 //Or probably the one specified in the attribute
+                                 //when you create a new one from scratch.
+
+        public abstract void WriteData(BinaryWriter stream);
+        public abstract void LoadData(byte[] data, ref int srcOffset);
+    }
+
+    /// <summary>
     /// For anything not supported yet!
     /// </summary>
     [ChunkName("????", "Unknown")]
-    public class DefaultChunk : IChunkType
+    public class DefaultChunk : BaseChunk
     {
-        public void LoadData(byte[] data, ref int srcOffset) {}
-        public void WriteData(BinaryWriter stream) {}
+        public override void LoadData(byte[] data, ref int srcOffset) {}
+        public override void WriteData(BinaryWriter stream) {}
     }
 
     /// <summary>
@@ -347,7 +359,7 @@ namespace WWActorEdit
     ///  to use in different weather situations. 
     /// </summary>
     [ChunkName("ENVR", "Environment")]
-    public class EnvRChunk : IChunkType
+    public class EnvRChunk : BaseChunk
     {
         public byte ClearColorIndexA; //Index of the Color entry to use for clear weather.
         public byte RainingColorIndexA; //There's two sets, A and B. B's usage is unknown but identical.
@@ -365,7 +377,7 @@ namespace WWActorEdit
             ClearColorIndexB = RainingColorIndexB = SnowingColorIndexB = UnknownColorIndexB = 0;
         }
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             ClearColorIndexA = Helpers.Read8(data, srcOffset + 0);
             RainingColorIndexA = Helpers.Read8(data, srcOffset + 1);
@@ -380,7 +392,7 @@ namespace WWActorEdit
             srcOffset += 8;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write8(stream, ClearColorIndexA);
             FSHelpers.Write8(stream, RainingColorIndexA);
@@ -399,7 +411,7 @@ namespace WWActorEdit
     /// which color to use for the different times of day.
     /// </summary>
     [ChunkName("COLO", "Color")]
-    public class ColoChunk : IChunkType
+    public class ColoChunk : BaseChunk
     {
         public byte DawnIndex; //Index of the Pale entry to use for Dawn
         public byte MorningIndex;
@@ -413,7 +425,7 @@ namespace WWActorEdit
             DawnIndex = MorningIndex = NoonIndex = AfternoonIndex = DuskIndex = NightIndex = 0;
         }
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             DawnIndex =     Helpers.Read8(data, srcOffset + 0);
             MorningIndex =  Helpers.Read8(data, srcOffset + 1);
@@ -425,7 +437,7 @@ namespace WWActorEdit
             srcOffset += 6;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write8(stream, DawnIndex);
             FSHelpers.Write8(stream, MorningIndex);
@@ -441,7 +453,7 @@ namespace WWActorEdit
     /// types of lighting. 
     /// </summary>
     [ChunkName("PALE", "Palette")]
-    public class PaleChunk : IChunkType
+    public class PaleChunk : BaseChunk
     {
         public ByteColor ActorAmbient;
         public ByteColor ShadowColor;
@@ -480,7 +492,7 @@ namespace WWActorEdit
             ShoreFadeInto = new ByteColorAlpha();
         }
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             ActorAmbient = new ByteColor(data, ref srcOffset);
             ShadowColor = new ByteColor(data, ref srcOffset);
@@ -501,7 +513,7 @@ namespace WWActorEdit
             ShoreFadeInto = new ByteColorAlpha(data, ref srcOffset);
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteArray(stream, ActorAmbient.GetBytes());
             FSHelpers.WriteArray(stream, ShadowColor.GetBytes());
@@ -528,7 +540,7 @@ namespace WWActorEdit
     /// chunk.
     /// </summary>
     [ChunkName("VIRT", "Skybox Lighting")]
-    public class VirtChunk : IChunkType
+    public class VirtChunk : BaseChunk
     {
         public ByteColorAlpha HorizonCloudColor; //The Horizon
         public ByteColorAlpha CenterCloudColor;  //Directly above you
@@ -545,7 +557,7 @@ namespace WWActorEdit
             SkyFadeTo = new ByteColor();
         }
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             //First 16 bytes are 80 00 00 00 (repeated 4 times). Unknown why.
             srcOffset += 16;
@@ -561,7 +573,7 @@ namespace WWActorEdit
             srcOffset += 3;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             //Fixed values that doesn't seem to change.
             FSHelpers.WriteArray(stream, FSHelpers.ToBytes(0x80000000, 4));
@@ -584,7 +596,7 @@ namespace WWActorEdit
     /// the maps collision data (which supplies the actual positions)
     /// </summary>
     [ChunkName("SCLS", "Exits")]
-    public class SclsChunk : IChunkType
+    public class SclsChunk : BaseChunk
     {
         [DisplayName]
         public string DestinationName;
@@ -593,7 +605,7 @@ namespace WWActorEdit
         public byte ExitType;
         public byte UnknownPadding;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             DestinationName = Helpers.ReadString(data, srcOffset, 8);
             SpawnNumber = Helpers.Read8(data, srcOffset + 8);
@@ -605,7 +617,7 @@ namespace WWActorEdit
         }
 
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteString(stream, DestinationName, 8);
             FSHelpers.Write8(stream, SpawnNumber);
@@ -619,7 +631,7 @@ namespace WWActorEdit
     /// The Plyr (Player) chunk defines spawn points for Link.
     /// </summary>
     [ChunkName("PLYR", "Player Spawn(s)")]
-    public class PlyrChunk : IChunkType
+    public class PlyrChunk : BaseChunk
     {
         [DisplayName]
         public string Name; //"Link"
@@ -630,7 +642,7 @@ namespace WWActorEdit
         public Vector3 Position;
         public HalfRotation Rotation;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Name = Helpers.ReadString(data, srcOffset, 8);
             EventIndex = Helpers.Read8(data, srcOffset + 8);
@@ -648,7 +660,7 @@ namespace WWActorEdit
             srcOffset += 2; //Two bytes Padding
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteString(stream, Name, 8);
             FSHelpers.Write8(stream, EventIndex);
@@ -672,7 +684,7 @@ namespace WWActorEdit
     ///RPAT and RPPN are found in DZR files, while Path and PPNT are found in DZS files.
     ///</summary>
     [ChunkName("RPAT", "Paths")]
-    public class RPATChunk : IChunkType
+    public class RPATChunk : BaseChunk
     {
         public ushort NumPoints;
         public ushort Unknown1; //Probably padding
@@ -691,7 +703,7 @@ namespace WWActorEdit
             FirstPointOffset = 0;
         }
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             NumPoints = Helpers.Read16(data, srcOffset);
             Unknown1 = Helpers.Read16(data, srcOffset + 2);
@@ -703,7 +715,7 @@ namespace WWActorEdit
             srcOffset += 12;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write16(stream, NumPoints);
             FSHelpers.Write16(stream, Unknown1);
@@ -714,8 +726,14 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("PATH", "Paths")]
+    public class PathChunk : RPATChunk
+    {
+        
+    }
+
     [ChunkName("SOND", "Sound")]
-    public class SondChunk : IChunkType
+    public class SondChunk : BaseChunk
     {
         [DisplayName]
         public string Name; //Seems to always be "sndpath"
@@ -729,7 +747,7 @@ namespace WWActorEdit
         public byte Padding3;
         public byte Padding4;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Name = Helpers.ReadString(data, srcOffset, 8);
             SourcePos.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 8));
@@ -747,7 +765,7 @@ namespace WWActorEdit
             srcOffset += 28;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteString(stream, Name, 8);
             FSHelpers.WriteFloat(stream, SourcePos.X);
@@ -765,13 +783,13 @@ namespace WWActorEdit
     }
     
     [ChunkName("FLOR", "Dungeon Floors")]
-    public class FlorChunk : IChunkType
+    public class FlorChunk : BaseChunk
     {
         public float LowerBoundaryYCoord; //Y value of the lower boundary of a floor. When link crosses the coord, the map switches him to being on that floor.
         public byte FloorId; //????
         public byte[] IncludedRooms;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             LowerBoundaryYCoord = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
             FloorId = Helpers.Read8(data, srcOffset + 4);
@@ -782,7 +800,7 @@ namespace WWActorEdit
             srcOffset += 20;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, LowerBoundaryYCoord);
             FSHelpers.Write8(stream, FloorId);
@@ -793,15 +811,15 @@ namespace WWActorEdit
     }
 
     [ChunkName("FILI", "Misc.")]
-    public class FiliChunk : IChunkType
+    public class FiliChunk : BaseChunk
     {
         public byte TimePassage;
         public byte WindSettings;
         public byte Unknown1;
         public byte LightingType; //04 is normal, 05 is shadowed.
-        public float Unknown2; 
+        public float Unknown2;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             TimePassage = Helpers.Read8(data, srcOffset + 0);
             WindSettings = Helpers.Read8(data, srcOffset + 1);
@@ -812,7 +830,7 @@ namespace WWActorEdit
             srcOffset += 8;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write8(stream, TimePassage);
             FSHelpers.Write8(stream, WindSettings);
@@ -823,13 +841,13 @@ namespace WWActorEdit
     }
 
     [ChunkName("RCAM", "Camera Usage")]
-    public class RcamChunk : IChunkType
+    public class RcamChunk : BaseChunk
     {
         [DisplayName]
         public string CameraType;
         public int Padding;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             CameraType = Helpers.ReadString(data, srcOffset, 16);
             Padding = (int) Helpers.Read32(data, srcOffset + 16);
@@ -838,20 +856,26 @@ namespace WWActorEdit
         }
 
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteString(stream, CameraType, 16);
             FSHelpers.Write32(stream, Padding);
         } 
     }
 
+    [ChunkName("CAMR", "Camera Usage")]
+    public class CamrChunk : RcamChunk
+    {
+        
+    }
+
     [ChunkName("MECO", "Memory O")]
-    public class MecoChunk : IChunkType
+    public class MecoChunk : BaseChunk
     {
         public byte RoomNumber; //Which room number this applies to
         public byte MemaIndex;  //Which index in the Mema array to use.
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             RoomNumber = Helpers.Read8(data, srcOffset);
             MemaIndex = Helpers.Read8(data, srcOffset + 1);
@@ -859,7 +883,7 @@ namespace WWActorEdit
             srcOffset += 2;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write8(stream, RoomNumber);
             FSHelpers.Write8(stream, MemaIndex);
@@ -868,24 +892,24 @@ namespace WWActorEdit
     }
 
     [ChunkName("MEMA", "Memory A")]
-    public class MemaChunk : IChunkType
+    public class MemaChunk : BaseChunk
     {
         public uint MemSize; //Amount of memory to allocate for a room.
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             MemSize = Helpers.Read32(data, srcOffset);
             srcOffset += 4;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write32(stream, (int)MemSize);
         }
     }
 
     [ChunkName("TRES", "Treasure Chests (Non-Ocean)")]
-    public class TresChunk : IChunkType
+    public class TresChunk : BaseChunk
     {
         [DisplayName]
         public string Name; //Usually Takara, 8 bytes + null terminator.
@@ -895,7 +919,7 @@ namespace WWActorEdit
         public ushort YRotation; //Rotation on the Y axis
         public byte ChestContents; //Rupees, Hookshot, etc.
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Name = Helpers.ReadString(data, srcOffset, 8);
             ChestType = Helpers.Read16(data, srcOffset + 9);
@@ -909,7 +933,7 @@ namespace WWActorEdit
             srcOffset += 28;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteString(stream, Name, 8);
             FSHelpers.Write8(stream, 0xFF);
@@ -924,12 +948,12 @@ namespace WWActorEdit
     }
 
     [ChunkName("SHIP", "Ship Spawn Point")]
-    public class ShipChunk : IChunkType
+    public class ShipChunk : BaseChunk
     {
         public Vector3 Position;
         public uint Unknown;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Position.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0));
             Position.Y = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 4));
@@ -940,7 +964,7 @@ namespace WWActorEdit
             srcOffset += 12;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, Position.X);
             FSHelpers.WriteFloat(stream, Position.Y);
@@ -951,12 +975,12 @@ namespace WWActorEdit
     }
 
     [ChunkName("RPPN", "Path Waypoint")]
-    public class RppnChunk : IChunkType
+    public class RppnChunk : BaseChunk
     {
         public uint Unknown;
         public Vector3 Position;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Unknown = Helpers.Read32(data, srcOffset);
             Position.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 4));
@@ -966,7 +990,7 @@ namespace WWActorEdit
             srcOffset += 16;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write32(stream, (int)Unknown);
 
@@ -976,8 +1000,14 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("PPNT", "Path Waypoint")]
+    public class PpntChunk : RppnChunk
+    {
+        
+    }
+
     [ChunkName("MULT", "Room Position")]
-    public class MultChunk : IChunkType
+    public class MultChunk : BaseChunk
     {
         public float TranslationX;
         public float TranslationY;
@@ -985,7 +1015,7 @@ namespace WWActorEdit
         public byte RoomNumber;
         public byte Unknown;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             TranslationX = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0));
             TranslationY = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 4));
@@ -997,7 +1027,7 @@ namespace WWActorEdit
             srcOffset += 12;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, TranslationX);
             FSHelpers.WriteFloat(stream, TranslationY);
@@ -1008,13 +1038,13 @@ namespace WWActorEdit
     }
 
     [ChunkName("LGHT", "Interior Light Source")]
-    public class LghtChunk : IChunkType
+    public class LghtChunk : BaseChunk
     {
         public Vector3 Position;
         public Vector3 Scale; //Or Intensity
         public ByteColorAlpha Color;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Position.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0));
             Position.Y = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 4));
@@ -1028,7 +1058,7 @@ namespace WWActorEdit
             Color = new ByteColorAlpha(data, ref srcOffset);
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, Position.X);
             FSHelpers.WriteFloat(stream, Position.Y);
@@ -1042,13 +1072,19 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("LGTV", "Interior Light Source")]
+    public class LgtvChunk : LghtChunk
+    {
+        
+    }
+
     [ChunkName("RARO", "Camera Ref Data")]
-    public class RaroChunk : IChunkType
+    public class RaroChunk : BaseChunk
     {
         public Vector3 Position;
         public byte[] Unknown; //Always seems to be 00 00 80 00 00 00 FF FF
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Position.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0));
             Position.Y = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 4));
@@ -1061,7 +1097,7 @@ namespace WWActorEdit
             srcOffset += 20;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, Position.X);
             FSHelpers.WriteFloat(stream, Position.Y);
@@ -1072,8 +1108,14 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("AROB", "Camera Ref Data")]
+    public class ArobChunk : RaroChunk
+    {
+        
+    }
+
     [ChunkName("EVNT", "Event")]
-    public class EvntChunk : IChunkType
+    public class EvntChunk : BaseChunk
     {
         public byte Unknown;
         [DisplayName]
@@ -1087,7 +1129,7 @@ namespace WWActorEdit
         public byte Unknown7;
         public byte Unknown8;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Unknown = Helpers.Read8(data, srcOffset);
             EventName = Helpers.ReadString(data, srcOffset + 1, 15);
@@ -1103,7 +1145,7 @@ namespace WWActorEdit
             srcOffset += 24;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write8(stream, Unknown);
             FSHelpers.WriteString(stream, EventName, 15);
@@ -1121,7 +1163,7 @@ namespace WWActorEdit
     }
 
     [ChunkName("ACTR", "Actor")]
-    public class ActrChunk : IChunkType
+    public class ActrChunk : BaseChunk
     {
         [DisplayName]
         public string Name;
@@ -1135,7 +1177,7 @@ namespace WWActorEdit
         public ushort EnemyNumber;
             //Unknown purpose. Enemies are given a number here based on their position in the actor list.
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Name = Helpers.ReadString(data, srcOffset, 8);
             Unknown1 = Helpers.Read8(data, srcOffset + 8);
@@ -1155,7 +1197,7 @@ namespace WWActorEdit
             srcOffset += 2; //Already got +24 from earlier, then +6 from HalfRotation.
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteString(stream, Name, 8);
             FSHelpers.Write8(stream, Unknown1);
@@ -1174,8 +1216,14 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("TGOB", "Actor")]
+    public class TgobChunk : ActrChunk
+    {
+        
+    }
+
     [ChunkName("STAG", "Stage")]
-    public class StagChunk : IChunkType
+    public class StagChunk : BaseChunk
     {
         public float MinDepth;
         public float MaxDepth;
@@ -1188,7 +1236,7 @@ namespace WWActorEdit
         public byte Unknown3;
         public ushort DrawDistance;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             MinDepth = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
             MaxDepth = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 4));
@@ -1204,7 +1252,7 @@ namespace WWActorEdit
             srcOffset += 20;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, MinDepth);
             FSHelpers.WriteFloat(stream, MaxDepth);
@@ -1223,7 +1271,7 @@ namespace WWActorEdit
     /// 2DMA holds the settings for the map display in the bottom left-hand corner of the screen.
     /// </summary>
     [ChunkName("2DMA", "Minimap")]
-    public class TwoDMAChunk : IChunkType
+    public class TwoDMAChunk : BaseChunk
     {
         public float FullMapImageScaleX;
         public float FullMapImageScaleY;
@@ -1243,7 +1291,7 @@ namespace WWActorEdit
         public byte Unknown2; //variable, but changing it has no immediate result
         public byte Padding;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             FullMapImageScaleX  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
             FullMapImageScaleY  = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x4));
@@ -1266,7 +1314,7 @@ namespace WWActorEdit
             srcOffset += 0x38;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, FullMapImageScaleX);
             FSHelpers.WriteFloat(stream, FullMapImageScaleY);
@@ -1288,15 +1336,21 @@ namespace WWActorEdit
         }
     }
 
+    [ChunkName("TWOD", "Minimap")]
+    public class TwoDChunk : TwoDMAChunk
+    {
+        
+    }
+
     [ChunkName("DMAP", "Dungeon Map")]
-    public class DMAPChunk : IChunkType
+    public class DMAPChunk : BaseChunk
     {
         public float MapSpaceX;
         public float MapSpaceY;
         public float MapSpaceScale;
         public float Unknown1;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             MapSpaceX = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset));
             MapSpaceY = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 0x4));
@@ -1306,7 +1360,7 @@ namespace WWActorEdit
             srcOffset += 0x10;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteFloat(stream, MapSpaceX);
             FSHelpers.WriteFloat(stream, MapSpaceY);
@@ -1316,7 +1370,7 @@ namespace WWActorEdit
     }
 
     [ChunkName("RTBL", "Room Table")]
-    public class RTBLChunk : IChunkType
+    public class RTBLChunk : BaseChunk
     {
         public byte Unknown1;
         public ushort Unknown2;
@@ -1331,7 +1385,7 @@ namespace WWActorEdit
         }
 
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Index1 = (int) Helpers.Read32(data, srcOffset);
             byte dataSize = Helpers.Read8(data, Index1);
@@ -1343,7 +1397,7 @@ namespace WWActorEdit
             srcOffset += 0x4;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             throw new Exception("Hey we haven't tested this, you should test it now!");
             FSHelpers.WriteFloat(stream, Index1);
@@ -1369,24 +1423,24 @@ namespace WWActorEdit
     /// now and then when there's an odd byte mixed in.
     /// </summary>
     [ChunkName("LBNK", "Blank")]
-    public class LbnkChunk : IChunkType
+    public class LbnkChunk : BaseChunk
     {
         public byte Data;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             Data = Helpers.Read8(data, srcOffset);
 
             srcOffset += 1;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.Write8(stream, Data);
         }
     }
     [ChunkName("SCOB", "Scaleable Objects")]
-    public class ScobChunk : IChunkType
+    public class ScobChunk : BaseChunk
     {
         [DisplayName]
         public string ObjectName; //Always 8 bytes
@@ -1404,7 +1458,7 @@ namespace WWActorEdit
         public byte ScaleZ;
         public byte Padding;
 
-        public void LoadData(byte[] data, ref int srcOffset)
+        public override void LoadData(byte[] data, ref int srcOffset)
         {
             ObjectName = Helpers.ReadString(data, srcOffset, 8);
             Param0 = Helpers.Read8(data, srcOffset + 8);
@@ -1426,7 +1480,7 @@ namespace WWActorEdit
             srcOffset += 36;
         }
 
-        public void WriteData(BinaryWriter stream)
+        public override void WriteData(BinaryWriter stream)
         {
             FSHelpers.WriteString(stream, ObjectName, 8);
             FSHelpers.Write8(stream, Param0);

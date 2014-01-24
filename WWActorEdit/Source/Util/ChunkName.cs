@@ -8,25 +8,15 @@ namespace WWActorEdit.Source.Util
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class ChunkName : Attribute
     {
-        private string _originalName; //Original name of chunk, ie: 2DMA or SCLS
-        private string _humanName; //Human readable name, ie "Doors", etc.
+        public string OriginalName; //Original name of chunk, ie: 2DMA or SCLS
+        public string HumanName; //Human readable name, ie "Doors", etc.
 
         public ChunkName(string nintendoName, string readableName)
         {
-            _originalName = nintendoName;
-            _humanName = readableName;
+            OriginalName = nintendoName;
+            HumanName = readableName;
         }
 
-        public string OriginalName
-        {
-            get { return _originalName; }
-            set { _originalName = value; }
-        }
-
-        public string HumanName
-        {
-            get { return _humanName; }
-        }
     }
 
 
