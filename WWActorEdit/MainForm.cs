@@ -24,6 +24,7 @@ using WWActorEdit.Kazari.DZB;
 using WWActorEdit.Kazari.J3Dx;
 using WWActorEdit.Source;
 using WWActorEdit.Source.FileFormats;
+using WWActorEdit.Source.Util;
 
 namespace WWActorEdit
 {
@@ -531,7 +532,7 @@ namespace WWActorEdit
         private void fileBrowserTV_AfterSelect(object sender, TreeViewEventArgs e)
         {
             //Lets hope they always pick the default name for Entity files...
-            if (e.Node.Text.ToLower() == "room.dzr" || e.Node.Text.ToLower() == "stage.dzs")
+            if (e.Node.Text.EndsWith(".dzr") || e.Node.Text.EndsWith(".dzs"))
             {
                 //The user has selected an entity file. The reference to which entity file should
                 //be stored in the node's tag, so with a little casting... magic!
@@ -577,7 +578,10 @@ namespace WWActorEdit
                         baseNode = nodes[0];
                     }
 
-                    baseNode.Nodes.Add("[" + baseNode.Nodes.Count + "] - " + chunk.GetType().Name);
+                    TreeNode node = baseNode.Nodes.Add("[" + baseNode.Nodes.Count + "] - " + chunk.GetType().Name);
+                    ChunkName chunkAttrib = (ChunkName)chunk.GetType().GetCustomAttributes(typeof(ChunkName), false)[0];
+                    if (chunkAttrib != null)
+                        node.Text = chunkAttrib.HumanName;
 
                 }
             }
