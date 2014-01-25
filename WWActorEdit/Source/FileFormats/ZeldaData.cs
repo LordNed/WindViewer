@@ -64,7 +64,7 @@ namespace WWActorEdit
                         case "MULT" : chunk = new MultChunk(); break;
                         case "LGHT": chunk = new LghtChunk(); break;
                         case "LGTV": chunk = new LgtvChunk(); break;
-                        case "RARA": chunk = new RaroChunk(); break;
+                        case "RARO": chunk = new RaroChunk(); break;
                         case "AROB": chunk = new ArobChunk(); break;       
                         case "EVNT": chunk = new EvntChunk(); break;
                         case "TGOB": chunk = new TgobChunk(); break;
@@ -77,7 +77,7 @@ namespace WWActorEdit
                         case "2DMA": chunk = new TwoDMAChunk(); break;  
                         case "DMAP": chunk = new DMAPChunk(); break;
                         case "LBNK": chunk = new LbnkChunk(); break;
-                        case "SCOB": chunk = new ScobChunk(); break;
+                        case "TGDR": chunk = new TgdrChunk(); break;
                         /* All of the frigging Actor Layers */
                         case "ACT0": chunk = new Act0Chunk(); break;
                         case "ACT1": chunk = new Act1Chunk(); break;
@@ -95,6 +95,28 @@ namespace WWActorEdit
                         case "ACTD": chunk = new ActDChunk(); break;
                         case "ACTE": chunk = new ActEChunk(); break;
                         case "ACTF": chunk = new ActFChunk(); break;
+
+                        /* All of the SCOB Layers */
+                        case "SCO0": chunk = new Sco0Chunk(); break;
+                        case "SCO1": chunk = new Sco1Chunk(); break;
+                        case "SCO2": chunk = new Sco2Chunk(); break;
+                        case "SCO3": chunk = new Sco3Chunk(); break;
+                        case "SCO4": chunk = new Sco4Chunk(); break;
+                        case "SCO5": chunk = new Sco5Chunk(); break;
+                        case "SCO6": chunk = new Sco6Chunk(); break;
+                        case "SCO7": chunk = new Sco7Chunk(); break;
+                        case "SCO8": chunk = new Sco8Chunk(); break;
+                        case "SCO9": chunk = new Sco9Chunk(); break;
+                        case "SCOA": chunk = new ScoAChunk(); break;
+                        case "SCOB": 
+                            //Whee, apparently "SCOB" and "SCOb" are different chunks. We force-caps'd the comparison
+                            //originally because "FILI" and "Fili" are both tags that Nintendo uses to mean the same thing.
+                            //So we're going to compare the non-cap'sd tag here to see if it's a B or b...
+                            chunk = chunkHeader.Tag.EndsWith("B") ? new ScoBChunk() : new ScobChunk(); break;
+                        case "SCOC": chunk = new ScoCChunk(); break;
+                        case "SCOD": chunk = new ScoDChunk(); break;
+                        case "SCOE": chunk = new ScoEChunk(); break;
+                        case "SCOF": chunk = new ScoFChunk(); break;
 
                         default:
                             Console.WriteLine("Unsupported Chunk Tag: " + chunkHeader.Tag +
@@ -936,9 +958,10 @@ namespace WWActorEdit
         public string Name; //Usually Takara, 8 bytes + null terminator.
         public ushort ChestType; //Big Key, Common Wooden, etc.
         public Vector3 Position;
-        public ushort Unknown;
+        public ushort Unknown1;
         public ushort YRotation; //Rotation on the Y axis
         public byte ChestContents; //Rupees, Hookshot, etc.
+        public uint Unknown2;
 
         public override void LoadData(byte[] data, ref int srcOffset)
         {
@@ -947,11 +970,11 @@ namespace WWActorEdit
             Position.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 11));
             Position.Y = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 15));
             Position.Z = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 19));
-            Unknown = Helpers.Read16(data, srcOffset + 23);
+            Unknown1 = Helpers.Read16(data, srcOffset + 23);
             YRotation = Helpers.Read16(data, srcOffset + 25);
             ChestContents = Helpers.Read8(data, srcOffset + 27);
-
-            srcOffset += 28;
+            Unknown2 = Helpers.Read32(data, srcOffset + 28);
+            srcOffset += 32;
         }
 
         public override void WriteData(BinaryWriter stream)
@@ -962,9 +985,10 @@ namespace WWActorEdit
             FSHelpers.WriteFloat(stream, Position.X);
             FSHelpers.WriteFloat(stream, Position.Y);
             FSHelpers.WriteFloat(stream, Position.Z);
-            FSHelpers.Write16(stream, Unknown);
+            FSHelpers.Write16(stream, Unknown1);
             FSHelpers.Write16(stream, YRotation);
             FSHelpers.Write8(stream, ChestContents);
+            FSHelpers.Write32(stream, (int)Unknown2);
         }
     }
 
@@ -1532,6 +1556,73 @@ namespace WWActorEdit
             FSHelpers.Write8(stream, ScaleZ);
             FSHelpers.Write8(stream, Padding);
         }
+    }
+
+    [ChunkName("SCO0", "Scaleable Objects Layer 0")] public class Sco0Chunk : ScobChunk {}
+    [ChunkName("SCO1", "Scaleable Objects Layer 1")] public class Sco1Chunk : ScobChunk {}
+    [ChunkName("SCO2", "Scaleable Objects Layer 2")] public class Sco2Chunk : ScobChunk {}
+    [ChunkName("SCO3", "Scaleable Objects Layer 3")] public class Sco3Chunk : ScobChunk {}
+    [ChunkName("SCO4", "Scaleable Objects Layer 4")] public class Sco4Chunk : ScobChunk {}
+    [ChunkName("SCO5", "Scaleable Objects Layer 5")] public class Sco5Chunk : ScobChunk {}
+    [ChunkName("SCO6", "Scaleable Objects Layer 6")] public class Sco6Chunk : ScobChunk {}
+    [ChunkName("SCO7", "Scaleable Objects Layer 7")] public class Sco7Chunk : ScobChunk {}
+    [ChunkName("SCO8", "Scaleable Objects Layer 8")] public class Sco8Chunk : ScobChunk {}
+    [ChunkName("SCO9", "Scaleable Objects Layer 9")] public class Sco9Chunk : ScobChunk {}
+    [ChunkName("SCOa", "Scaleable Objects Layer A")] public class ScoAChunk : ScobChunk {}
+    [ChunkName("SCOb", "Scaleable Objects Layer B")] public class ScoBChunk : ScobChunk {}
+    [ChunkName("SCOc", "Scaleable Objects Layer C")] public class ScoCChunk : ScobChunk {}
+    [ChunkName("SCOd", "Scaleable Objects Layer D")] public class ScoDChunk : ScobChunk {}
+    [ChunkName("SCOe", "Scaleable Objects Layer E")] public class ScoEChunk : ScobChunk {}
+    [ChunkName("SCOf", "Scaleable Objects Layer F")] public class ScoFChunk : ScobChunk {}
+
+    [ChunkName("TGDR", "Door")]
+    public class TgdrChunk : BaseChunk
+    {
+        [DisplayName]
+        public string Name;
+
+        public ushort Unknown0; //Usually 0F FF?
+        public ushort DoorType; //Unknown how it works.
+        public Vector3 Position;
+        public ushort Unknown1;
+        public ushort yRot;
+        public ushort Unknown2;
+        public ushort Padding;
+        public int Unknown3;
+
+        public override void LoadData(byte[] data, ref int srcOffset)
+        {
+            Name = Helpers.ReadString(data, srcOffset, 8);
+            Unknown0 = Helpers.Read16(data, srcOffset + 8);
+            DoorType = Helpers.Read16(data, srcOffset + 10);
+            Position.X = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 12));
+            Position.Y = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 16));
+            Position.Z = Helpers.ConvertIEEE754Float(Helpers.Read32(data, srcOffset + 20));
+            Unknown1 = Helpers.Read16(data, srcOffset + 24);
+            yRot = Helpers.Read16(data, srcOffset + 26);
+            Unknown2 = Helpers.Read16(data, srcOffset + 28);
+            Padding = Helpers.Read16(data, srcOffset + 30);
+            Unknown3 = (int)Helpers.Read32(data, srcOffset + 32);
+
+            srcOffset += 36;
+        }
+
+        public override void WriteData(BinaryWriter stream)
+        {
+            FSHelpers.WriteString(stream, Name, 8);
+            FSHelpers.Write16(stream, Unknown0);
+            FSHelpers.Write16(stream, DoorType);
+            FSHelpers.WriteFloat(stream, Position.X);
+            FSHelpers.WriteFloat(stream, Position.Y);
+            FSHelpers.WriteFloat(stream, Position.Z);
+            FSHelpers.Write16(stream, Unknown1);
+            FSHelpers.Write16(stream, yRot);
+            FSHelpers.Write16(stream, Unknown2);
+            FSHelpers.Write16(stream, Padding);
+            FSHelpers.Write32(stream, Unknown3);
+        }
+
+        
     }
     #endregion
 
